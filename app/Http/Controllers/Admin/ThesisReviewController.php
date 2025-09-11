@@ -79,7 +79,7 @@ class ThesisReviewController extends Controller
             'thesis'      => $thesis,
             'student'     => $thesis->student,
             'approvedAt'  => optional($thesis->approved_at)->format('F d, Y'),
-            'verifyUrl'   => $verifyUrl,
+            // 'verifyUrl'   => $verifyUrl,
             'qrPng'       => $qrPng,
             'visibleCode' => strtoupper(substr(hash('sha256', $thesis->verification_token), 0, 10)),
         ])->setPaper('A4');

@@ -121,7 +121,7 @@
             <img src="data:image/png;base64,{{ $qrPng }}" alt="QR Code" width="110" height="110">
         </div>
         <div>Scan to verify</div>
-        <div style="word-break: break-all;">{{ $verifyUrl }}</div>
+        {{-- <div style="word-break: break-all;">{{ $verifyUrl }}</div> --}}
     </div>
 
 </body>
