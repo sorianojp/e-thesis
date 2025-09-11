@@ -1,7 +1,6 @@
-{{-- resources/views/admin/theses/index.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800">e-Thesis Review Queue</h2>
+        e-Thesis Review Queue
     </x-slot>
 
     <div class="py-6">

@@ -1,7 +1,6 @@
-{{-- resources/views/student/theses/index.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800">My Submissions</h2>
+        My Submissions
     </x-slot>
     <div class="py-6">
         <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
@@ -24,8 +23,9 @@
                             <th scope="col" class="px-6 py-3">Version</th>
                             <th scope="col" class="px-6 py-3">Title</th>
                             <th scope="col" class="px-6 py-3">Course</th>
-                            <th scope="col" class="px-6 py-3">Status</th>
                             <th scope="col" class="px-6 py-3">Attachements</th>
+                            <th scope="col" class="px-6 py-3">Status</th>
+                            <th scope="col" class="px-6 py-3">Certificate</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -34,6 +34,12 @@
                                 <td class="px-6 py-4">{{ $t->version }}</td>
                                 <td class="px-6 py-4">{{ $t->title }}</td>
                                 <td class="px-6 py-4">{{ $t->course->name }}</td>
+                                <td class="px-6 py-4">
+                                    <a class="text-blue-700 hover:underline"
+                                        href="{{ route('theses.download', [$t, 'thesis']) }}">Thesis</a><br />
+                                    <a class="text-blue-700 hover:underline"
+                                        href="{{ route('theses.download', [$t, 'endorsement']) }}">Endorsement</a><br />
+                                </td>
                                 <td class="px-6 py-4 capitalize font-bold">
                                     <span
                                         class="text-xs font-medium px-2.5 py-0.5 rounded-lg {{ $t->status === 'pending'
@@ -47,13 +53,11 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <a class="text-blue-700 hover:underline"
-                                        href="{{ route('theses.download', [$t, 'thesis']) }}">Thesis</a><br />
-                                    <a class="text-blue-700 hover:underline"
-                                        href="{{ route('theses.download', [$t, 'endorsement']) }}">Endorsement</a><br />
                                     @if ($t->status === 'approved')
                                         <a class="text-blue-700 hover:underline"
                                             href="{{ route('theses.certificate', $t) }}">Download Certificate</a>
+                                    @else
+                                        N/A
                                     @endif
                                 </td>
                             </tr>

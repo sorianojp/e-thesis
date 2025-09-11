@@ -21,6 +21,7 @@ class Thesis extends Model
         'thesis_pdf_path',
         'endorsement_pdf_path',
         'status',
+        'verification_token',
         'admin_remarks',
         'approved_at',
         'approved_by'

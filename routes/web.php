@@ -5,9 +5,10 @@ use App\Http\Controllers\ThesisController;
 use App\Http\Controllers\Admin\ThesisReviewController;
 use App\Models\Thesis;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\VerifyController;
 
 
-
+Route::get('/verify/{token}', [VerifyController::class, 'show'])->name('verify.show');
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/', fn () => view('dashboard'))->name('dashboard');

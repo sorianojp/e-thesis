@@ -1,7 +1,6 @@
-{{-- resources/views/admin/theses/show.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800">Review</h2>
+        Review
     </x-slot>
 
     <div class="py-6">

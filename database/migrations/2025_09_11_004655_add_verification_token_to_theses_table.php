@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('theses', function (Blueprint $table) {
-            //
+            $table->string('verification_token', 64)->nullable()->unique()->after('status');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('theses', function (Blueprint $table) {
-            //
+            $table->dropColumn(['verification_token']);
         });
     }
 };
