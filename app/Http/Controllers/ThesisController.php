@@ -28,8 +28,8 @@ public function store(Request $req) {
         'title' => 'required|string|max:255',
         'adviser' => 'nullable|string|max:255',
         'abstract' => 'nullable|string',
-        'thesis_pdf' => 'required|file|mimes:pdf|max:20480',       // 20 MB
-        'endorsement_pdf' => 'required|file|mimes:pdf|max:20480',
+        'thesis_pdf' => 'required|file|mimes:pdf|max:40960',       // 20 MB
+        'endorsement_pdf' => 'required|file|mimes:pdf|max:40960',
     ]);
 
     $userId = $req->user()->id;
