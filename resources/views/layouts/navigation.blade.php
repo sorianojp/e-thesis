@@ -15,11 +15,11 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    @unless (auth()->user()->isAdmin())
+                    @if (auth()->user()->isStudent())
                         <x-nav-link :href="route('theses.index')" :active="request()->routeIs('theses.*')">
                             {{ __('Theses') }}
                         </x-nav-link>
-                    @endunless
+                    @endif
                     @can('admin', App\Models\Thesis::class)
                         <x-nav-link :href="route('admin.theses.index')" :active="request()->routeIs('admin.theses.*')">
                             {{ __('Theses') }}
@@ -89,11 +89,11 @@
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
             {{-- Student link (only if NOT admin) --}}
-            @unless (auth()->user()->isAdmin())
+            @if (auth()->user()->isStudent())
                 <x-responsive-nav-link :href="route('theses.index')" :active="request()->routeIs('theses.*')">
                     {{ __('Theses') }}
                 </x-responsive-nav-link>
-            @endunless
+            @endif
 
             {{-- Admin link (only if admin) --}}
             @can('admin', App\Models\Thesis::class)

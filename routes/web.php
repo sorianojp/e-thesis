@@ -31,7 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Secure file access (owner OR admin)
     Route::get('/theses/{thesis}/download/{type}', [ThesisController::class, 'download'])
-        ->whereIn('type', ['thesis', 'endorsement'])
+        ->whereIn('type', ['thesis', 'endorsement', 'abstract'])
         ->middleware('can:view,thesis')
         ->name('theses.download');
 
@@ -55,12 +55,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('admin.theses.index');
 
         Route::get('/admin/theses/{thesis}', [ThesisReviewController::class, 'show'])
+            ->middleware('can:view,thesis')
             ->name('admin.theses.show');
 
         Route::post('/admin/theses/{thesis}/approve', [ThesisReviewController::class, 'approve'])
+            ->middleware('can:review,thesis')
             ->name('admin.theses.approve');
 
         Route::post('/admin/theses/{thesis}/reject', [ThesisReviewController::class, 'reject'])
+            ->middleware('can:review,thesis')
             ->name('admin.theses.reject');
     });
 });

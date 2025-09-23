@@ -15,7 +15,13 @@ class ThesisReviewController extends Controller
 {
     public function index(Request $req) {
         Gate::authorize('admin', Thesis::class);
-        $q = Thesis::query()->with('student:id,name,email')->latest();
+        $q = Thesis::query()
+            ->with(['student:id,name,email', 'course:id,name', 'adviserUser:id,name'])
+            ->latest();
+
+        if ($req->user()->isAdviser() && !$req->user()->isAdmin()) {
+            $q->where('adviser_id', $req->user()->id);
+        }
         if ($s = $req->get('status')) $q->where('status', $s);
         $theses = $q->paginate(15);
         return view('admin.theses.index', compact('theses'));
@@ -23,11 +29,14 @@ class ThesisReviewController extends Controller
 
     public function show(Thesis $thesis) {
         Gate::authorize('admin', Thesis::class);
+        Gate::authorize('view', $thesis);
+        $thesis->loadMissing(['student:id,name,email', 'course:id,name', 'adviserUser:id,name']);
         return view('admin.theses.show', compact('thesis'));
     }
 
     public function approve(Request $req, Thesis $thesis) {
         Gate::authorize('admin', Thesis::class);
+        Gate::authorize('review', $thesis);
         $data = $req->validate(['admin_remarks' => 'nullable|string|max:2000']);
 
         $thesis->update([
@@ -43,6 +52,7 @@ class ThesisReviewController extends Controller
 
     public function reject(Request $req, Thesis $thesis) {
         Gate::authorize('admin', Thesis::class);
+        Gate::authorize('review', $thesis);
         $data = $req->validate(['admin_remarks' => 'required|string|max:2000']);
 
         $thesis->update([

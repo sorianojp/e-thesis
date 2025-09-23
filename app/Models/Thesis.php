@@ -9,18 +9,25 @@ class Thesis extends Model
 {
     protected $casts = [
         'approved_at' => 'datetime',
+        'plagiarism_score' => 'float',
     ];
-    
+
     protected $fillable = [
         'user_id',
         'course_id',
+        'adviser_id',
         'version',
         'title',
         'adviser',
         'abstract',
+        'abstract_pdf_path',
         'thesis_pdf_path',
         'endorsement_pdf_path',
         'status',
+        'plagiarism_scan_id',
+        'plagiarism_status',
+        'plagiarism_score',
+        'thesis_hash',
         'verification_token',
         'admin_remarks',
         'approved_at',
@@ -32,13 +39,18 @@ class Thesis extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function course(): BelongsTo
+    {
+        return $this->belongsTo(Course::class, 'course_id');
+    }
+
     public function approver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
 
-    public function course(): BelongsTo
+    public function adviserUser(): BelongsTo
     {
-        return $this->belongsTo(Course::class, 'course_id');
+        return $this->belongsTo(User::class, 'adviser_id');
     }
 }

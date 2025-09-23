@@ -16,8 +16,20 @@
                     <p class="mb-1"><b>Course:</b> {{ $thesis->course->name }}</p>
                     <p class="mb-1"><b>Title:</b> {{ $thesis->title }}</p>
                     <p class="mb-1"><b>Version:</b> {{ $thesis->version }}</p>
-                    @if ($thesis->adviser)
-                        <p class="mb-1"><b>Adviser:</b> {{ $thesis->adviser }}</p>
+                    <p class="mb-1"><b>Adviser:</b>
+                        {{ optional($thesis->adviserUser)->name ?? $thesis->adviser ?? 'Unassigned' }}
+                    </p>
+                    <p class="mb-1"><b>Plagiarism Score:</b>
+                        @if (!is_null($thesis->plagiarism_score))
+                            {{ number_format($thesis->plagiarism_score, 2) }}%
+                        @elseif ($thesis->plagiarism_status)
+                            <span class="text-sm text-gray-500">{{ ucfirst($thesis->plagiarism_status) }}</span>
+                        @else
+                            <span class="text-sm text-gray-500">Not scanned</span>
+                        @endif
+                    </p>
+                    @if ($thesis->plagiarism_scan_id)
+                        <p class="mb-1 text-xs text-gray-500">Scan ID: {{ $thesis->plagiarism_scan_id }}</p>
                     @endif
                     <p class="capitalize"><b>Status:</b>
                         <span
@@ -41,36 +53,49 @@
                             href="{{ route('theses.download', [$thesis, 'endorsement']) }}">View Endorsement</a>
                     </div>
 
-                    @if ($thesis->abstract)
+                    @if ($thesis->abstract_pdf_path || $thesis->abstract)
                         <div class="mt-6 border rounded p-4 bg-gray-50">
                             <b>Abstract</b>
-                            <p class="whitespace-pre-line mt-1">{{ $thesis->abstract }}</p>
+                            @if ($thesis->abstract_pdf_path)
+                                <p class="mt-2">
+                                    <a class="text-blue-700 hover:underline"
+                                        href="{{ route('theses.download', [$thesis, 'abstract']) }}">Download Abstract</a>
+                                </p>
+                            @else
+                                <p class="whitespace-pre-line mt-1">{{ $thesis->abstract }}</p>
+                            @endif
                         </div>
                     @endif
                 </div>
 
-                <form method="POST" action="{{ route('admin.theses.approve', $thesis) }}"
-                    class="bg-white shadow sm:rounded p-6">
-                    @csrf
-                    <h3 class="font-semibold mb-2">Approve</h3>
-                    <textarea name="admin_remarks" rows="3" placeholder="Optional remarks" class="w-full rounded border-gray-300"></textarea>
-                    <div class='flex justify-end'>
-                        <x-primary-button type="submit">Approve</x-primary-button>
-                    </div>
-                </form>
+                @can('review', $thesis)
+                    <form method="POST" action="{{ route('admin.theses.approve', $thesis) }}"
+                        class="bg-white shadow sm:rounded p-6">
+                        @csrf
+                        <h3 class="font-semibold mb-2">Approve</h3>
+                        <textarea name="admin_remarks" rows="3" placeholder="Optional remarks" class="w-full rounded border-gray-300"></textarea>
+                        <div class='flex justify-end'>
+                            <x-primary-button type="submit">Approve</x-primary-button>
+                        </div>
+                    </form>
 
-                <form method="POST" action="{{ route('admin.theses.reject', $thesis) }}"
-                    class="bg-white shadow sm:rounded p-6">
-                    @csrf
-                    <h3 class="font-semibold mb-2">Reject</h3>
-                    <textarea name="admin_remarks" rows="3" placeholder="Required remarks" class="w-full rounded border-gray-300"></textarea>
-                    @error('admin_remarks')
-                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                    @enderror
-                    <div class='flex justify-end'>
-                        <x-danger-button type="submit">Reject</x-danger-button>
+                    <form method="POST" action="{{ route('admin.theses.reject', $thesis) }}"
+                        class="bg-white shadow sm:rounded p-6">
+                        @csrf
+                        <h3 class="font-semibold mb-2">Reject</h3>
+                        <textarea name="admin_remarks" rows="3" placeholder="Required remarks" class="w-full rounded border-gray-300"></textarea>
+                        @error('admin_remarks')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                        <div class='flex justify-end'>
+                            <x-danger-button type="submit">Reject</x-danger-button>
+                        </div>
+                    </form>
+                @else
+                    <div class="bg-white shadow sm:rounded p-6 col-span-2">
+                        <p class="text-sm text-gray-600">Viewing only. Approval actions are reserved for the assigned adviser.</p>
                     </div>
-                </form>
+                @endcan
             </div>
         </div>
     </div>

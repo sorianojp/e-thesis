@@ -9,6 +9,10 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    public const ROLE_STUDENT = 'student';
+    public const ROLE_ADVISER = 'adviser';
+    public const ROLE_ADMIN = 'admin';
+
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
@@ -22,6 +26,7 @@ class User extends Authenticatable
         'email',
         'password',
         'step_token',
+        'role',
     ];
 
     /**
@@ -46,9 +51,19 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             // 'password' => 'hashed',
             'step_token' => 'encrypted:string',
+            'role' => 'string',
         ];
     }
 
-    public function isAdmin(): bool { return $this->role === 'admin'; }
+    public function isAdmin(): bool { return $this->role === self::ROLE_ADMIN; }
+
+    public function isAdviser(): bool { return $this->role === self::ROLE_ADVISER; }
+
+    public function isStudent(): bool { return $this->role === self::ROLE_STUDENT; }
+
+    public function canReviewTheses(): bool
+    {
+        return $this->isAdviser();
+    }
 
 }
