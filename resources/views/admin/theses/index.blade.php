@@ -17,7 +17,6 @@
                             <th scope="col" class="px-6 py-3">Title</th>
                             <th scope="col" class="px-6 py-3">Course</th>
                             <th scope="col" class="px-6 py-3">Student</th>
-                            <th scope="col" class="px-6 py-3">Plagiarism</th>
                             <th scope="col" class="px-6 py-3">Status</th>
                             <th scope="col" class="px-6 py-3">Action</th>
                         </tr>
@@ -29,15 +28,6 @@
                                 <td class="px-6 py-4">{{ $t->title }}</td>
                                 <td class="px-6 py-4">{{ $t->course->name }}</td>
                                 <td class="px-6 py-4">{{ $t->student->name }}</td>
-                                <td class="px-6 py-4">
-                                    @if (!is_null($t->plagiarism_score))
-                                        {{ number_format($t->plagiarism_score, 2) }}%
-                                    @elseif ($t->plagiarism_status)
-                                        <span class="text-sm text-gray-500">{{ ucfirst($t->plagiarism_status) }}</span>
-                                    @else
-                                        <span class="text-sm text-gray-500">Not scanned</span>
-                                    @endif
-                                </td>
                                 <td class="px-6 py-4 capitalize font-bold">
                                     <span
                                         class="text-xs font-medium px-2.5 py-0.5 rounded-lg {{ $t->status === 'pending'

@@ -9,9 +9,8 @@ class Thesis extends Model
 {
     protected $casts = [
         'approved_at' => 'datetime',
-        'plagiarism_score' => 'float',
     ];
-
+    
     protected $fillable = [
         'user_id',
         'course_id',
@@ -24,10 +23,6 @@ class Thesis extends Model
         'thesis_pdf_path',
         'endorsement_pdf_path',
         'status',
-        'plagiarism_scan_id',
-        'plagiarism_status',
-        'plagiarism_score',
-        'thesis_hash',
         'verification_token',
         'admin_remarks',
         'approved_at',

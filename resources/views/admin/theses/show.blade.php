@@ -19,18 +19,6 @@
                     <p class="mb-1"><b>Adviser:</b>
                         {{ optional($thesis->adviserUser)->name ?? $thesis->adviser ?? 'Unassigned' }}
                     </p>
-                    <p class="mb-1"><b>Plagiarism Score:</b>
-                        @if (!is_null($thesis->plagiarism_score))
-                            {{ number_format($thesis->plagiarism_score, 2) }}%
-                        @elseif ($thesis->plagiarism_status)
-                            <span class="text-sm text-gray-500">{{ ucfirst($thesis->plagiarism_status) }}</span>
-                        @else
-                            <span class="text-sm text-gray-500">Not scanned</span>
-                        @endif
-                    </p>
-                    @if ($thesis->plagiarism_scan_id)
-                        <p class="mb-1 text-xs text-gray-500">Scan ID: {{ $thesis->plagiarism_scan_id }}</p>
-                    @endif
                     <p class="capitalize"><b>Status:</b>
                         <span
                             class="text-xs font-medium px-2.5 py-0.5 rounded-lg {{ $thesis->status === 'pending'

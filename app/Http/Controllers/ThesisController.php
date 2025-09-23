@@ -5,22 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Course;
 use App\Models\Thesis;
 use App\Models\User;
-use App\Services\CopyleaksClient;
 use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class ThesisController extends Controller
 {
-    protected CopyleaksClient $plagiarismClient;
-
-    public function __construct(CopyleaksClient $plagiarismClient)
-    {
-        $this->plagiarismClient = $plagiarismClient;
-    }
-
     public function index(Request $req)
     {
         abort_unless($req->user()->isStudent(), 403);
@@ -92,13 +83,6 @@ class ThesisController extends Controller
         $endorseName = "endorsement_v{$version}_{$slug}_{$timestamp}.pdf";
         $abstractName = "abstract_v{$version}_{$slug}_{$timestamp}.pdf";
 
-        $thesisHash = $this->hashUploadedFile($req->file('thesis_pdf'));
-        $plagiarismResult = $this->plagiarismClient->submitScan($req->file('thesis_pdf'), [
-            'hash' => $thesisHash,
-            'title' => $data['title'],
-            'user_id' => $userId,
-        ]);
-
         $thesisPath = Storage::disk('spaces')->putFileAs($thesisDir, $req->file('thesis_pdf'), $thesisName);
         $endorsePath = Storage::disk('spaces')->putFileAs($endorseDir, $req->file('endorsement_pdf'), $endorseName);
         $abstractPath = $req->hasFile('abstract_pdf')
@@ -115,32 +99,14 @@ class ThesisController extends Controller
             'adviser_id' => $data['adviser_id'],
             'adviser' => $adviserName,
             'abstract_pdf_path' => $abstractPath,
-            'thesis_pdf_path' => $thesisPath,          // store the key/path from Spaces
+            'thesis_pdf_path' => $thesisPath,
             'endorsement_pdf_path' => $endorsePath,
-            'plagiarism_score' => $plagiarismResult['score'] ?? null,
-            'plagiarism_scan_id' => $plagiarismResult['scan_id'] ?? null,
-            'plagiarism_status' => ($plagiarismResult['score'] ?? null) !== null
-                ? 'completed'
-                : ($plagiarismResult['status'] ?? null),
-            'thesis_hash' => $thesisHash,
             // 'status' defaults to pending via migration
         ]);
 
         return redirect()->route('theses.index')->with('status', 'Submitted. Await admin review.');
     }
 
-    protected function hashUploadedFile(UploadedFile $file): ?string
-    {
-        try {
-            $hash = sha1_file($file->getRealPath());
-
-            return $hash !== false ? $hash : null;
-        } catch (\Throwable $e) {
-            report($e);
-        }
-
-        return null;
-    }
     // secure file preview/download (optional hardened)
     public function download(Thesis $thesis, string $type)
     {
@@ -158,9 +124,6 @@ class ThesisController extends Controller
         // 5-minute signed URL
         $temporaryUrl = Storage::disk('spaces')->temporaryUrl($path, now()->addMinutes(5), [
             'ResponseContentType' => 'application/pdf',
-            // 'ResponseContentDisposition' => 'inline; filename="thesis.pdf"', // inline view
-            // Or force download:
-            // 'ResponseContentDisposition' => 'attachment; filename="thesis.pdf"',
         ]);
 
         return redirect()->away($temporaryUrl);

@@ -24,7 +24,6 @@
                             <th scope="col" class="px-6 py-3">Title</th>
                             <th scope="col" class="px-6 py-3">Course</th>
                             <th scope="col" class="px-6 py-3">Attachements</th>
-                            <th scope="col" class="px-6 py-3">Plagiarism</th>
                             <th scope="col" class="px-6 py-3">Status</th>
                             <th scope="col" class="px-6 py-3">Certificate</th>
                         </tr>
@@ -43,15 +42,6 @@
                                     @if ($t->abstract_pdf_path)
                                         <a class="text-blue-700 hover:underline"
                                             href="{{ route('theses.download', [$t, 'abstract']) }}">Abstract</a><br />
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4">
-                                    @if (!is_null($t->plagiarism_score))
-                                        {{ number_format($t->plagiarism_score, 2) }}%
-                                    @elseif ($t->plagiarism_status)
-                                        <span class="text-sm text-gray-500">{{ ucfirst($t->plagiarism_status) }}</span>
-                                    @else
-                                        <span class="text-sm text-gray-500">Not scanned</span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 capitalize font-bold">

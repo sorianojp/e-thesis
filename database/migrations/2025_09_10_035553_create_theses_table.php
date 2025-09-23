@@ -22,10 +22,6 @@ return new class extends Migration
             $table->string('thesis_pdf_path'); // storage path
             $table->string('endorsement_pdf_path'); // storage path
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-            $table->string('plagiarism_scan_id')->nullable();
-            $table->string('plagiarism_status')->nullable();
-            $table->decimal('plagiarism_score', 5, 2)->nullable();
-            $table->string('thesis_hash', 64)->nullable();
             $table->text('admin_remarks')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
