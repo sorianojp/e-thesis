@@ -4,16 +4,21 @@ namespace App\Http\Controllers\Webhooks;
 
 use App\Http\Controllers\Controller;
 use App\Models\Thesis;
+use App\Services\CopyleaksClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class CopyleaksWebhookController extends Controller
 {
+    public function __construct(protected CopyleaksClient $copyleaks)
+    {
+    }
+
     public function status(Request $request)
     {
         $payload = $request->all();
         $scanId = $this->extractScanId($payload);
-        $status = $payload['status'] ?? $payload['event'] ?? $payload['action'] ?? 'processing';
+        $status = $this->normalizeStatus($payload['status'] ?? $payload['event'] ?? $payload['action'] ?? null);
 
         if ($scanId) {
             Thesis::where('plagiarism_scan_id', $scanId)->update([
@@ -46,6 +51,12 @@ class CopyleaksWebhookController extends Controller
             }
 
             Thesis::where('plagiarism_scan_id', $scanId)->update($update);
+
+            if ($this->copyleaks->requestExport($scanId)) {
+                Thesis::where('plagiarism_scan_id', $scanId)->update([
+                    'plagiarism_status' => 'export_requested',
+                ]);
+            }
         }
 
         Log::info('Copyleaks completed webhook', [
@@ -61,7 +72,7 @@ class CopyleaksWebhookController extends Controller
     {
         $payload = $request->all();
         $scanId = $this->extractScanId($payload);
-        $exportStatus = $payload['status'] ?? $payload['event'] ?? 'export_ready';
+        $exportStatus = $this->normalizeStatus($payload['status'] ?? $payload['event'] ?? 'export_ready');
 
         if ($scanId) {
             Thesis::where('plagiarism_scan_id', $scanId)->update([
@@ -106,5 +117,26 @@ class CopyleaksWebhookController extends Controller
         }
 
         return null;
+    }
+
+    protected function normalizeStatus(null|int|string $status): string
+    {
+        $map = [
+            0 => 'processing',
+            1 => 'completed',
+            2 => 'error',
+            'queued' => 'processing',
+            'finished' => 'completed',
+            'completed' => 'completed',
+            'error' => 'error',
+            'failed' => 'error',
+            'export_ready' => 'export_ready',
+        ];
+
+        if (is_numeric($status)) {
+            $status = (int) $status;
+        }
+
+        return $map[$status] ?? (is_string($status) ? strtolower($status) : 'processing');
     }
 }

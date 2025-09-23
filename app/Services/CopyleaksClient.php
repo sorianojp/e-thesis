@@ -104,10 +104,6 @@ class CopyleaksClient
 
         $result = $this->attemptImmediateScore($token, $scanId, $timeout);
 
-        if ($scanId && $this->shouldRequestExport()) {
-            $this->requestExport($token, $scanId, $timeout);
-        }
-
         return [
             'scan_id' => $scanId,
             'score' => $result['score'],
@@ -115,29 +111,35 @@ class CopyleaksClient
         ];
     }
 
-    protected function shouldRequestExport(): bool
+    public function requestExport(string $scanId, ?array $formats = null): ?string
     {
-        return !empty(config('services.copyleaks.export_formats'))
-            && (bool) $this->buildExportWebhookUrl();
-    }
-
-    protected function requestExport(string $token, string $scanId, int $timeout): void
-    {
-        $exportUrl = sprintf('%s/v3/scans/%s/export', $this->apiUrl, $scanId);
         $webhookUrl = $this->buildExportWebhookUrl();
+        $formats = $formats ?? config('services.copyleaks.export_formats');
 
-        if (!$webhookUrl) {
-            return;
+        if (!$webhookUrl || empty($formats)) {
+            return null;
         }
 
+        $token = $this->getAccessToken();
+
+        if (!$token) {
+            return null;
+        }
+
+        $timeout = (int) config('services.copyleaks.timeout', 30);
+        $exportId = (string) Str::uuid();
+
         $payload = [
+            'exportId' => $exportId,
             'webhook' => [
-                'url' => $webhookUrl,
                 'method' => 'POST',
+                'url' => $webhookUrl,
                 'headers' => new \stdClass(),
             ],
-            'formats' => config('services.copyleaks.export_formats'),
+            'formats' => $formats,
         ];
+
+        $exportUrl = sprintf('%s/v3/exports/%s/submit', $this->apiUrl, $scanId);
 
         try {
             $response = Http::withToken($token)
@@ -145,15 +147,19 @@ class CopyleaksClient
                 ->acceptJson()
                 ->post($exportUrl, $payload);
 
-            if (!$response->successful()) {
-                logger()->warning('Copyleaks export request failed', [
-                    'status' => $response->status(),
-                    'body' => $response->body(),
-                ]);
+            if ($response->successful()) {
+                return $exportId;
             }
+
+            logger()->warning('Copyleaks export request failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
         } catch (Throwable $e) {
             report($e);
         }
+
+        return null;
     }
 
     protected function attemptImmediateScore(string $token, string $scanId, int $timeout): array
