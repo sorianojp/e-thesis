@@ -57,6 +57,27 @@ class CopyleaksWebhookController extends Controller
         return response()->json(['received' => true]);
     }
 
+    public function export(Request $request)
+    {
+        $payload = $request->all();
+        $scanId = $this->extractScanId($payload);
+        $exportStatus = $payload['status'] ?? $payload['event'] ?? 'export_ready';
+
+        if ($scanId) {
+            Thesis::where('plagiarism_scan_id', $scanId)->update([
+                'plagiarism_status' => $exportStatus,
+            ]);
+        }
+
+        Log::info('Copyleaks export webhook', [
+            'scan_id' => $scanId,
+            'status' => $exportStatus,
+            'payload' => $payload,
+        ]);
+
+        return response()->json(['received' => true]);
+    }
+
     protected function extractScanId(array $payload): ?string
     {
         return $payload['scanId']

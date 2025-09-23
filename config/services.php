@@ -49,6 +49,7 @@ return [
         'poll_attempts' => env('COPYLEAKS_POLL_ATTEMPTS', 5),
         'poll_interval' => env('COPYLEAKS_POLL_INTERVAL', 5),
         'webhook_base' => env('COPYLEAKS_WEBHOOK_BASE', env('APP_URL')),
+        'export_formats' => array_filter(array_map('trim', explode(',', env('COPYLEAKS_EXPORT_FORMATS', 'pdf')))),
     ],
 
 ];

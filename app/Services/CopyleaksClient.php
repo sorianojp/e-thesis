@@ -104,11 +104,56 @@ class CopyleaksClient
 
         $result = $this->attemptImmediateScore($token, $scanId, $timeout);
 
+        if ($scanId && $this->shouldRequestExport()) {
+            $this->requestExport($token, $scanId, $timeout);
+        }
+
         return [
             'scan_id' => $scanId,
             'score' => $result['score'],
             'status' => $result['status'],
         ];
+    }
+
+    protected function shouldRequestExport(): bool
+    {
+        return !empty(config('services.copyleaks.export_formats'))
+            && (bool) $this->buildExportWebhookUrl();
+    }
+
+    protected function requestExport(string $token, string $scanId, int $timeout): void
+    {
+        $exportUrl = sprintf('%s/v3/scans/%s/export', $this->apiUrl, $scanId);
+        $webhookUrl = $this->buildExportWebhookUrl();
+
+        if (!$webhookUrl) {
+            return;
+        }
+
+        $payload = [
+            'webhook' => [
+                'url' => $webhookUrl,
+                'method' => 'POST',
+                'headers' => new \stdClass(),
+            ],
+            'formats' => config('services.copyleaks.export_formats'),
+        ];
+
+        try {
+            $response = Http::withToken($token)
+                ->timeout($timeout)
+                ->acceptJson()
+                ->post($exportUrl, $payload);
+
+            if (!$response->successful()) {
+                logger()->warning('Copyleaks export request failed', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+            }
+        } catch (Throwable $e) {
+            report($e);
+        }
     }
 
     protected function attemptImmediateScore(string $token, string $scanId, int $timeout): array
@@ -210,6 +255,13 @@ class CopyleaksClient
             'status' => $base . '/status',
             'completed' => $base . '/completed',
         ];
+    }
+
+    protected function buildExportWebhookUrl(): ?string
+    {
+        $base = config('services.copyleaks.webhook_base');
+
+        return $base ? rtrim($base, '/') . '/export' : null;
     }
 
     protected function getAccessToken(): ?string
