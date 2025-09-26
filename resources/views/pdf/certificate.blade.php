@@ -104,6 +104,23 @@
             <p class="mt">Adviser: <strong>{{ $thesis->adviser }}</strong></p>
         @endif
 
+        @if ($thesis->panel_chairman || $thesis->panelist_one || $thesis->panelist_two)
+            <p class="mt"><strong>Panel Members</strong></p>
+            @if ($thesis->panel_chairman)
+                <p>Chairman: <strong>{{ $thesis->panel_chairman }}</strong></p>
+            @endif
+            @if ($thesis->panelist_one)
+                <p>Panelist 1: <strong>{{ $thesis->panelist_one }}</strong></p>
+            @endif
+            @if ($thesis->panelist_two)
+                <p>Panelist 2: <strong>{{ $thesis->panelist_two }}</strong></p>
+            @endif
+        @endif
+
+        @if ($thesis->defense_date)
+            <p class="mt">Scheduled Defense: <strong>{{ $thesis->defense_date->format('F d, Y') }}</strong></p>
+        @endif
+
         <p class="mt">Accordingly, the student is <strong>ELIGIBLE TO DEFEND</strong> as of {{ $approvedAt }}.</p>
     </div>
 

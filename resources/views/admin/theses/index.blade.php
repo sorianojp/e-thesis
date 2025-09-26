@@ -1,3 +1,5 @@
+@php($routePrefix = auth()->user()->isAdmin() ? 'admin' : 'adviser')
+
 <x-app-layout>
     <x-slot name="header">
         e-Thesis Review Queue
@@ -42,9 +44,11 @@
                                 </td>
 
                                 <td class="px-6 py-4">
-                                    @if ($t->status === 'pending' && Auth::user()->can('review', $t))
-                                        <a href="{{ route('admin.theses.show', $t) }}">
-                                            <x-primary-button type="button">Review</x-primary-button>
+                                    @if (Auth::user()->can('review', $t) && in_array($t->status, ['pending', 'approved']))
+                                        <a href="{{ route($routePrefix . '.theses.show', $t) }}">
+                                            <x-primary-button type="button">
+                                                {{ $t->status === 'approved' ? 'Re-review' : 'Review' }}
+                                            </x-primary-button>
                                         </a>
                                     @elseif ($t->status === 'pending')
                                         <span class="text-sm text-gray-500">No actions available</span>

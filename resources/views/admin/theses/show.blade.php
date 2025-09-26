@@ -1,3 +1,5 @@
+@php($routePrefix = auth()->user()->isAdmin() ? 'admin' : 'adviser')
+
 <x-app-layout>
     <x-slot name="header">
         Review
@@ -54,10 +56,41 @@
                             @endif
                         </div>
                     @endif
+
+                    @if ($thesis->status === 'approved')
+                        <div class="mt-6 border rounded p-4 bg-gray-50">
+                            <div class="flex justify-between items-start">
+                                <b>Panel Details</b>
+                                @can('review', $thesis)
+                                    <a href="{{ route($routePrefix . '.theses.panel.edit', $thesis) }}" class="text-sm text-indigo-600 hover:underline">Edit</a>
+                                @endcan
+                            </div>
+                            @if ($thesis->panel_chairman || $thesis->panelist_one || $thesis->panelist_two || $thesis->defense_date)
+                                <dl class="mt-2 space-y-1 text-sm text-gray-700">
+                                    @if ($thesis->panel_chairman)
+                                        <div><span class="font-semibold">Chairman:</span> {{ $thesis->panel_chairman }}</div>
+                                    @endif
+                                    @if ($thesis->panelist_one)
+                                        <div><span class="font-semibold">Panelist 1:</span> {{ $thesis->panelist_one }}</div>
+                                    @endif
+                                    @if ($thesis->panelist_two)
+                                        <div><span class="font-semibold">Panelist 2:</span> {{ $thesis->panelist_two }}</div>
+                                    @endif
+                                    @if ($thesis->defense_date)
+                                        <div><span class="font-semibold">Defense Date:</span>
+                                            {{ $thesis->defense_date->format('F d, Y') }}
+                                        </div>
+                                    @endif
+                                </dl>
+                            @else
+                                <p class="text-sm text-gray-500 mt-2">Panel details pending.</p>
+                            @endif
+                        </div>
+                    @endif
                 </div>
 
                 @can('review', $thesis)
-                    <form method="POST" action="{{ route('admin.theses.approve', $thesis) }}"
+                    <form method="POST" action="{{ route($routePrefix . '.theses.approve', $thesis) }}"
                         class="bg-white shadow sm:rounded p-6">
                         @csrf
                         <h3 class="font-semibold mb-2">Approve</h3>
@@ -67,7 +100,7 @@
                         </div>
                     </form>
 
-                    <form method="POST" action="{{ route('admin.theses.reject', $thesis) }}"
+                    <form method="POST" action="{{ route($routePrefix . '.theses.reject', $thesis) }}"
                         class="bg-white shadow sm:rounded p-6">
                         @csrf
                         <h3 class="font-semibold mb-2">Reject</h3>

@@ -20,11 +20,19 @@
                             {{ __('Theses') }}
                         </x-nav-link>
                     @endif
-                    @can('admin', App\Models\Thesis::class)
-                        <x-nav-link :href="route('admin.theses.index')" :active="request()->routeIs('admin.theses.*')">
-                            {{ __('Theses') }}
+                    @if (auth()->user()->isAdviser())
+                        <x-nav-link :href="route('adviser.theses.index')" :active="request()->routeIs('adviser.theses.*')">
+                            {{ __('Adviser Queue') }}
                         </x-nav-link>
-                    @endcan
+                    @endif
+                    @if (auth()->user()->isAdmin())
+                        <x-nav-link :href="route('admin.theses.index')" :active="request()->routeIs('admin.theses.*')">
+                            {{ __('Admin Theses') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                            {{ __('Manage Users') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -95,12 +103,20 @@
                 </x-responsive-nav-link>
             @endif
 
-            {{-- Admin link (only if admin) --}}
-            @can('admin', App\Models\Thesis::class)
+            {{-- Adviser and Admin links --}}
+            @if (auth()->user()->isAdviser())
+                <x-responsive-nav-link :href="route('adviser.theses.index')" :active="request()->routeIs('adviser.theses.*')">
+                    {{ __('Adviser Queue') }}
+                </x-responsive-nav-link>
+            @endif
+            @if (auth()->user()->isAdmin())
                 <x-responsive-nav-link :href="route('admin.theses.index')" :active="request()->routeIs('admin.theses.*')">
                     {{ __('Admin Theses') }}
                 </x-responsive-nav-link>
-            @endcan
+                <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                    {{ __('Manage Users') }}
+                </x-responsive-nav-link>
+            @endif
 
         </div>
 

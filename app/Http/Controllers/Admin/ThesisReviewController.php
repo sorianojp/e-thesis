@@ -47,7 +47,11 @@ class ThesisReviewController extends Controller
           'verification_token' => $thesis->verification_token ?: Str::random(48),
         ]);
 
-        return redirect()->route('admin.theses.index')->with('status', 'Approved!');
+        $prefix = $req->user()->isAdmin() ? 'admin' : 'adviser';
+
+        return redirect()
+            ->route($prefix . '.theses.panel.edit', $thesis)
+            ->with('status', 'Approved! Please add panel details.');
     }
 
     public function reject(Request $req, Thesis $thesis) {
@@ -62,7 +66,42 @@ class ThesisReviewController extends Controller
           'approved_by' => null,
         ]);
 
-       return redirect()->route('admin.theses.index')->with('status', 'Rejected!');
+       $prefix = $req->user()->isAdmin() ? 'admin' : 'adviser';
+
+       return redirect()->route($prefix . '.theses.index')->with('status', 'Rejected!');
+    }
+
+    public function editPanel(Thesis $thesis)
+    {
+        Gate::authorize('admin', Thesis::class);
+        Gate::authorize('review', $thesis);
+        abort_unless($thesis->status === 'approved', 403);
+
+        $thesis->loadMissing(['student:id,name', 'course:id,name']);
+
+        return view('admin.theses.panel', compact('thesis'));
+    }
+
+    public function updatePanel(Request $req, Thesis $thesis)
+    {
+        Gate::authorize('admin', Thesis::class);
+        Gate::authorize('review', $thesis);
+        abort_unless($thesis->status === 'approved', 403);
+
+        $data = $req->validate([
+            'panel_chairman' => ['required', 'string', 'max:255'],
+            'panelist_one' => ['required', 'string', 'max:255'],
+            'panelist_two' => ['required', 'string', 'max:255'],
+            'defense_date' => ['required', 'date'],
+        ]);
+
+        $thesis->update($data);
+
+        $prefix = $req->user()->isAdmin() ? 'admin' : 'adviser';
+
+        return redirect()
+            ->route($prefix . '.theses.index')
+            ->with('status', 'Panel details saved.');
     }
 
     public function certificate(Thesis $thesis) {

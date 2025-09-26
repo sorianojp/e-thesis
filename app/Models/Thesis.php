@@ -9,8 +9,9 @@ class Thesis extends Model
 {
     protected $casts = [
         'approved_at' => 'datetime',
+        'defense_date' => 'date',
     ];
-    
+
     protected $fillable = [
         'user_id',
         'course_id',
@@ -26,7 +27,11 @@ class Thesis extends Model
         'verification_token',
         'admin_remarks',
         'approved_at',
-        'approved_by'
+        'approved_by',
+        'panel_chairman',
+        'panelist_one',
+        'panelist_two',
+        'defense_date',
     ];
 
     public function student(): BelongsTo
