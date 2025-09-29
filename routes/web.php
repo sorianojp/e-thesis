@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ThesisController;
 use App\Http\Controllers\Admin\ThesisReviewController;
+use App\Http\Controllers\Admin\PostgradThesisController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Models\Thesis;
 use Illuminate\Support\Facades\Route;
@@ -106,6 +107,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
             Route::put('/users/{user}', [UserManagementController::class, 'update'])
                 ->name('admin.users.update');
+
+            Route::get('/postgrad/theses', [PostgradThesisController::class, 'index'])
+                ->name('admin.postgrad.index');
+
+            Route::get('/postgrad/theses/create', [PostgradThesisController::class, 'create'])
+                ->name('admin.postgrad.create');
+
+            Route::post('/postgrad/theses', [PostgradThesisController::class, 'store'])
+                ->name('admin.postgrad.store');
+
+            Route::get('/postgrad/theses/{postgradThesis}/download', [PostgradThesisController::class, 'download'])
+                ->name('admin.postgrad.download');
         });
 });
 
