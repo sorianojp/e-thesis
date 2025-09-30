@@ -3,7 +3,7 @@
         My Submissions
     </x-slot>
     <div class="py-6">
-        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-full mx-auto sm:px-6 lg:px-8">
             @if (session('status'))
                 <div class="mb-4 rounded bg-green-50 text-green-900 px-4 py-2">{{ session('status') }}</div>
             @endif
@@ -23,9 +23,9 @@
                             <th scope="col" class="px-6 py-3">Version</th>
                             <th scope="col" class="px-6 py-3">Title</th>
                             <th scope="col" class="px-6 py-3">Course</th>
-                            <th scope="col" class="px-6 py-3">Attachements</th>
+                            <th scope="col" class="px-6 py-3">Attachments</th>
                             <th scope="col" class="px-6 py-3">Status</th>
-                            <th scope="col" class="px-6 py-3">Certificate</th>
+                            <th scope="col" class="px-6 py-3">Certificate / Approval</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -52,14 +52,19 @@
                                                 ? 'bg-green-100 text-green-800'
                                                 : ($t->status === 'rejected'
                                                     ? 'bg-red-100 text-red-800'
-                                                    : '')) }}">
+                                                    : ($t->status === 'passed'
+                                                        ? 'bg-blue-100 text-blue-800'
+                                                        : ''))) }}">
                                         {{ $t->status }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4">
-                                    @if ($t->status === 'approved')
+                                    @if ($t->status === 'passed' && !is_null($t->grade))
                                         <a class="text-blue-700 hover:underline"
-                                            href="{{ route('theses.certificate', $t) }}">Download Certificate</a>
+                                            href="{{ route('theses.approval', $t) }}">Approval Sheet</a>
+                                    @elseif ($t->status === 'approved')
+                                        <a class="text-blue-700 hover:underline"
+                                            href="{{ route('theses.certificate', $t) }}">Certificate to Defend</a>
                                     @else
                                         N/A
                                     @endif
@@ -67,7 +72,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td class="px-6 py-4" colspan="4">No submissions yet.</td>
+                                <td class="px-6 py-4" colspan="6">No submissions yet.</td>
                             </tr>
                         @endforelse
                     </tbody>

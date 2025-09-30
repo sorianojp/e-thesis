@@ -46,6 +46,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('can:downloadCertificate,thesis')
         ->name('theses.certificate');
 
+    Route::get('/theses/{thesis}/approval-sheet', [ThesisReviewController::class, 'approvalSheet'])
+        ->middleware('can:downloadCertificate,thesis')
+        ->name('theses.approval');
+
     Route::prefix('adviser')
         ->middleware(['role:adviser'])
         ->group(function () {
@@ -67,6 +71,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/theses/{thesis}/panel', [ThesisReviewController::class, 'updatePanel'])
                 ->middleware('can:review,thesis')
                 ->name('adviser.theses.panel.update');
+
+            Route::post('/theses/{thesis}/grade', [ThesisReviewController::class, 'markAsPassed'])
+                ->middleware('can:review,thesis')
+                ->name('adviser.theses.grade');
 
             Route::post('/theses/{thesis}/reject', [ThesisReviewController::class, 'reject'])
                 ->middleware('can:review,thesis')
@@ -94,6 +102,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/theses/{thesis}/panel', [ThesisReviewController::class, 'updatePanel'])
                 ->middleware('can:review,thesis')
                 ->name('admin.theses.panel.update');
+
+            Route::post('/theses/{thesis}/grade', [ThesisReviewController::class, 'markAsPassed'])
+                ->middleware('can:review,thesis')
+                ->name('admin.theses.grade');
 
             Route::post('/theses/{thesis}/reject', [ThesisReviewController::class, 'reject'])
                 ->middleware('can:review,thesis')

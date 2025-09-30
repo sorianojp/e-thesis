@@ -6,7 +6,7 @@
     </x-slot>
 
     <div class="py-6">
-        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-full mx-auto sm:px-6 lg:px-8">
             @if (session('status'))
                 <div class="mb-4 rounded bg-green-50 text-green-900 px-4 py-2">{{ session('status') }}</div>
             @endif
@@ -20,6 +20,7 @@
                             <th scope="col" class="px-6 py-3">Course</th>
                             <th scope="col" class="px-6 py-3">Student</th>
                             <th scope="col" class="px-6 py-3">Status</th>
+                            <th scope="col" class="px-6 py-3">Grade</th>
                             <th scope="col" class="px-6 py-3">Action</th>
                         </tr>
                     </thead>
@@ -38,9 +39,32 @@
                                                 ? 'bg-green-100 text-green-800'
                                                 : ($t->status === 'rejected'
                                                     ? 'bg-red-100 text-red-800'
-                                                    : '')) }}">
+                                                    : ($t->status === 'passed'
+                                                        ? 'bg-blue-100 text-blue-800'
+                                                        : ''))) }}">
                                         {{ $t->status }}
                                     </span>
+                                </td>
+
+                                <td class="px-6 py-4 text-sm text-gray-700">
+                                    @if (Auth::user()->can('review', $t) && $t->status === 'approved' && is_null($t->grade))
+                                        <form method="POST" action="{{ route($routePrefix . '.theses.grade', $t) }}"
+                                            class="flex items-center gap-2">
+                                            @csrf
+                                            <label for="grade-{{ $t->id }}" class="sr-only">Grade</label>
+                                            <input id="grade-{{ $t->id }}" name="grade" type="number"
+                                                step="0.01" min="0" max="100"
+                                                class="w-20 rounded border-gray-300 text-sm" placeholder="Grade"
+                                                required>
+                                            <x-secondary-button type="submit">Save</x-secondary-button>
+                                        </form>
+                                    @elseif (!is_null($t->grade))
+                                        {{ number_format((float) $t->grade, 2) }}
+                                    @elseif ($t->status === 'approved')
+                                        <span class="text-gray-500">Pending</span>
+                                    @else
+                                        <span class="text-gray-500">N/A</span>
+                                    @endif
                                 </td>
 
                                 <td class="px-6 py-4">
@@ -52,13 +76,15 @@
                                         </a>
                                     @elseif ($t->status === 'pending')
                                         <span class="text-sm text-gray-500">No actions available</span>
+                                    @elseif ($t->status === 'passed')
+                                        <span class="text-sm text-gray-500">N/A</span>
                                     @endif
                                 </td>
 
                             </tr>
                         @empty
                             <tr>
-                                <td class="px-6 py-4 text-center text-sm text-gray-500" colspan="6">
+                                <td class="px-6 py-4 text-center text-sm text-gray-500" colspan="7">
                                     No theses to display.
                                 </td>
                             </tr>

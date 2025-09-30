@@ -10,6 +10,7 @@ class Thesis extends Model
     protected $casts = [
         'approved_at' => 'datetime',
         'defense_date' => 'date',
+        'grade' => 'decimal:2',
     ];
 
     protected $fillable = [
@@ -24,6 +25,7 @@ class Thesis extends Model
         'thesis_pdf_path',
         'endorsement_pdf_path',
         'status',
+        'grade',
         'verification_token',
         'admin_remarks',
         'approved_at',

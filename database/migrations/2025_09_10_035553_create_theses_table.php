@@ -21,7 +21,8 @@ return new class extends Migration
             $table->string('adviser');
             $table->string('thesis_pdf_path'); // storage path
             $table->string('endorsement_pdf_path'); // storage path
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->enum('status', ['pending', 'approved', 'rejected', 'passed'])->default('pending');
+            $table->decimal('grade', 5, 2)->nullable();
             $table->text('admin_remarks')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();

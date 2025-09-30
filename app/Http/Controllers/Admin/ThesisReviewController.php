@@ -41,6 +41,7 @@ class ThesisReviewController extends Controller
 
         $thesis->update([
           'status' => 'approved',
+          'grade' => null,
           'admin_remarks' => $data['admin_remarks'] ?? null,
           'approved_at' => Carbon::now(),
           'approved_by' => $req->user()->id,
@@ -61,6 +62,7 @@ class ThesisReviewController extends Controller
 
         $thesis->update([
           'status' => 'rejected',
+          'grade' => null,
           'admin_remarks' => $data['admin_remarks'],
           'approved_at' => null,
           'approved_by' => null,
@@ -106,7 +108,7 @@ class ThesisReviewController extends Controller
 
     public function certificate(Thesis $thesis) {
         Gate::authorize('downloadCertificate', $thesis);
-        abort_unless($thesis->status === 'approved', 403);
+        abort_unless(in_array($thesis->status, ['approved', 'passed'], true), 403);
 
         // Ensure token exists (in case this was approved before you added tokens)
         if (!$thesis->verification_token) {
@@ -135,6 +137,52 @@ class ThesisReviewController extends Controller
 
         $studentSlug = str($thesis->student->name)->slug('-');
         return $pdf->download("Eligibility_to_Defend_{$studentSlug}.pdf");
+    }
+
+    public function approvalSheet(Thesis $thesis)
+    {
+        Gate::authorize('downloadCertificate', $thesis);
+        abort_unless($thesis->status === 'passed' && !is_null($thesis->grade), 403);
+
+        $thesis->loadMissing([
+            'student:id,name',
+            'course:id,name',
+            'adviserUser:id,name',
+        ]);
+
+        $pdf = PDF::loadView('pdf.approval_sheet', [
+            'thesis'      => $thesis,
+            'student'     => $thesis->student,
+            'courseName'  => optional($thesis->course)->name,
+            'adviserName' => optional($thesis->adviserUser)->name ?? $thesis->adviser,
+            'defenseDate' => optional($thesis->defense_date)->format('F d, Y'),
+        ])->setPaper('A4');
+
+        $studentSlug = str($thesis->student->name)->slug('-');
+
+        return $pdf->download("Approval_Sheet_{$studentSlug}.pdf");
+    }
+
+    public function markAsPassed(Request $req, Thesis $thesis)
+    {
+        Gate::authorize('admin', Thesis::class);
+        Gate::authorize('review', $thesis);
+        abort_unless($thesis->status === 'approved', 403);
+
+        $data = $req->validate([
+            'grade' => ['required', 'numeric', 'min:0', 'max:100'],
+        ]);
+
+        $thesis->update([
+            'grade' => $data['grade'],
+            'status' => 'passed',
+        ]);
+
+        $prefix = $req->user()->isAdmin() ? 'admin' : 'adviser';
+
+        return redirect()
+            ->route($prefix . '.theses.index')
+            ->with('status', 'Grade saved. Thesis marked as passed.');
     }
 
 }

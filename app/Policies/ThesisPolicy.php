@@ -35,7 +35,7 @@ class ThesisPolicy
     }
 
     public function downloadCertificate(User $user, Thesis $thesis): bool {
-        return $thesis->status === 'approved'
+        return in_array($thesis->status, ['approved', 'passed'], true)
             && (
                 $thesis->user_id === $user->id
                 || $this->review($user, $thesis)
