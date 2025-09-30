@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Course;
 use App\Models\Thesis;
 use App\Models\User;
+use App\Services\Plagiarism\CopyleaksService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -12,6 +13,10 @@ use Illuminate\Validation\Rule;
 
 class ThesisController extends Controller
 {
+    public function __construct(private CopyleaksService $copyleaks)
+    {
+    }
+
     public function index(Request $req)
     {
         abort_unless($req->user()->isStudent(), 403);
@@ -99,7 +104,7 @@ class ThesisController extends Controller
 
         $adviserName = User::query()->whereKey($data['adviser_id'])->value('name');
 
-        Thesis::create([
+        $thesis = Thesis::create([
             'user_id' => $userId,
             'course_id' => $data['course_id'],
             'version' => $version,
@@ -111,6 +116,8 @@ class ThesisController extends Controller
             'endorsement_pdf_path' => $endorsePath,
             // 'status' defaults to pending via migration
         ]);
+
+        $this->copyleaks->submitThesisForScan($thesis, $req->file('thesis_pdf'));
 
         return redirect()->route('theses.index')->with('status', 'Submitted. Await admin review.');
     }

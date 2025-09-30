@@ -11,6 +11,8 @@ class Thesis extends Model
         'approved_at' => 'datetime',
         'defense_date' => 'date',
         'grade' => 'decimal:2',
+        'plagiarism_report' => 'array',
+        'plagiarism_checked_at' => 'datetime',
     ];
 
     protected $fillable = [
@@ -24,6 +26,11 @@ class Thesis extends Model
         'abstract_pdf_path',
         'thesis_pdf_path',
         'endorsement_pdf_path',
+        'plagiarism_scan_id',
+        'plagiarism_status',
+        'plagiarism_score',
+        'plagiarism_report',
+        'plagiarism_checked_at',
         'status',
         'grade',
         'verification_token',

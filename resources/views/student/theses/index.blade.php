@@ -24,6 +24,7 @@
                             <th scope="col" class="px-6 py-3">Title</th>
                             <th scope="col" class="px-6 py-3">Course</th>
                             <th scope="col" class="px-6 py-3">Attachments</th>
+                            <th scope="col" class="px-6 py-3">Plagiarism</th>
                             <th scope="col" class="px-6 py-3">Status</th>
                             <th scope="col" class="px-6 py-3">Certificate / Approval</th>
                         </tr>
@@ -42,6 +43,26 @@
                                     @if ($t->abstract_pdf_path)
                                         <a class="text-blue-700 hover:underline"
                                             href="{{ route('theses.download', [$t, 'abstract']) }}">Abstract</a><br />
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 text-sm">
+                                    @if ($t->plagiarism_status === 'completed')
+                                        <span class="font-semibold text-gray-900">
+                                            {{ number_format((float) $t->plagiarism_score, 2) }}%
+                                        </span>
+                                        @if ($t->plagiarism_checked_at)
+                                            <span class="block text-xs text-gray-500">
+                                                Checked {{ $t->plagiarism_checked_at->diffForHumans() }}
+                                            </span>
+                                        @endif
+                                    @elseif ($t->plagiarism_status === 'failed')
+                                        <span class="text-red-600">Scan failed</span>
+                                    @elseif ($t->plagiarism_status === 'skipped')
+                                        <span class="text-yellow-600">Not scanned</span>
+                                    @else
+                                        <span class="text-gray-600">
+                                            {{ \Illuminate\Support\Str::headline($t->plagiarism_status ?? 'pending') }}
+                                        </span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 capitalize font-bold">
@@ -72,7 +93,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td class="px-6 py-4" colspan="6">No submissions yet.</td>
+                                <td class="px-6 py-4" colspan="7">No submissions yet.</td>
                             </tr>
                         @endforelse
                     </tbody>

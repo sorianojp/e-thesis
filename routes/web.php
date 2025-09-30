@@ -6,10 +6,16 @@ use App\Http\Controllers\Admin\ThesisReviewController;
 use App\Http\Controllers\Admin\PostgradThesisController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\VerifyController;
+use App\Http\Controllers\Webhooks\CopyleaksWebhookController;
+use App\Http\Middleware\VerifyCsrfToken;
 use App\Models\PostgradThesis;
 use App\Models\Thesis;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
+
+Route::post('api/plagiarism/webhook/{status}/{token}', CopyleaksWebhookController::class)
+    ->withoutMiddleware([VerifyCsrfToken::class])
+    ->name('webhooks.copyleaks');
 
 Route::get('/verify/{token}', [VerifyController::class, 'show'])->name('verify.show');
 Route::middleware(['auth', 'verified'])->group(function () {

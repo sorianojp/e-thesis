@@ -49,6 +49,37 @@
                             href="{{ route('theses.download', [$thesis, 'abstract']) }}">Abstract</a>
                     </div>
 
+                    <div class="mt-4">
+                        <p class="mb-1"><b>Plagiarism Check:</b>
+                            <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-semibold {{
+                                match ($thesis->plagiarism_status) {
+                                    'completed' => 'bg-green-100 text-green-800',
+                                    'failed' => 'bg-red-100 text-red-800',
+                                    'skipped' => 'bg-gray-100 text-gray-700',
+                                    default => 'bg-yellow-100 text-yellow-800',
+                                }
+                            }}">
+                                {{ \Illuminate\Support\Str::headline($thesis->plagiarism_status ?? 'pending') }}
+                            </span>
+                        </p>
+                        @if ($thesis->plagiarism_status === 'completed')
+                            <p class="text-sm text-gray-700">
+                                Score: <span class="font-semibold">{{ number_format((float) $thesis->plagiarism_score, 2) }}%</span>
+                                @if ($thesis->plagiarism_checked_at)
+                                    &middot; Checked {{ $thesis->plagiarism_checked_at->diffForHumans() }}
+                                @endif
+                            </p>
+                        @elseif ($thesis->plagiarism_status === 'failed')
+                            <p class="text-sm text-red-600">Unable to retrieve Copyleaks result. Try resubmitting if the
+                                issue persists.</p>
+                        @elseif ($thesis->plagiarism_status === 'skipped')
+                            <p class="text-sm text-gray-600">Copyleaks credentials missing at submission time. Update the
+                                environment variables and re-run the scan if needed.</p>
+                        @else
+                            <p class="text-sm text-gray-600">Waiting for Copyleaks to finish processing this submission.</p>
+                        @endif
+                    </div>
+
                     @if ($thesis->status === 'approved')
                         <div class="mt-6 border rounded p-4 bg-gray-50">
                             <div class="flex justify-between items-start">
