@@ -27,7 +27,7 @@ class Thesis extends Model
         'status',
         'grade',
         'verification_token',
-        'admin_remarks',
+        'adviser_remarks',
         'approved_at',
         'approved_by',
         'panel_chairman',

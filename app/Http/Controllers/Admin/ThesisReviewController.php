@@ -37,12 +37,12 @@ class ThesisReviewController extends Controller
     public function approve(Request $req, Thesis $thesis) {
         Gate::authorize('admin', Thesis::class);
         Gate::authorize('review', $thesis);
-        $data = $req->validate(['admin_remarks' => 'nullable|string|max:2000']);
+        $data = $req->validate(['adviser_remarks' => 'nullable|string|max:2000']);
 
         $thesis->update([
           'status' => 'approved',
           'grade' => null,
-          'admin_remarks' => $data['admin_remarks'] ?? null,
+          'adviser_remarks' => $data['adviser_remarks'] ?? null,
           'approved_at' => Carbon::now(),
           'approved_by' => $req->user()->id,
           'verification_token' => $thesis->verification_token ?: Str::random(48),
@@ -58,12 +58,12 @@ class ThesisReviewController extends Controller
     public function reject(Request $req, Thesis $thesis) {
         Gate::authorize('admin', Thesis::class);
         Gate::authorize('review', $thesis);
-        $data = $req->validate(['admin_remarks' => 'required|string|max:2000']);
+        $data = $req->validate(['adviser_remarks' => 'required|string|max:2000']);
 
         $thesis->update([
           'status' => 'rejected',
           'grade' => null,
-          'admin_remarks' => $data['admin_remarks'],
+          'adviser_remarks' => $data['adviser_remarks'],
           'approved_at' => null,
           'approved_by' => null,
         ]);

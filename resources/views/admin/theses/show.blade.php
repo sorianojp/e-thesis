@@ -110,7 +110,7 @@
                         class="bg-white shadow sm:rounded p-6">
                         @csrf
                         <h3 class="font-semibold mb-2">Approve</h3>
-                        <textarea name="admin_remarks" rows="3" placeholder="Optional remarks" class="w-full rounded border-gray-300"></textarea>
+                        <textarea name="adviser_remarks" rows="3" placeholder="Optional remarks" class="w-full rounded border-gray-300"></textarea>
                         <div class='flex justify-end'>
                             <x-primary-button type="submit">Approve</x-primary-button>
                         </div>
@@ -120,8 +120,8 @@
                         class="bg-white shadow sm:rounded p-6">
                         @csrf
                         <h3 class="font-semibold mb-2">Reject</h3>
-                        <textarea name="admin_remarks" rows="3" placeholder="Required remarks" class="w-full rounded border-gray-300"></textarea>
-                        @error('admin_remarks')
+                        <textarea name="adviser_remarks" rows="3" placeholder="Required remarks" class="w-full rounded border-gray-300"></textarea>
+                        @error('adviser_remarks')
                             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                         @enderror
                         <div class='flex justify-end'>

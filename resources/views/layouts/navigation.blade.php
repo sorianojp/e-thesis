@@ -27,7 +27,7 @@
                     @endif
                     @if (auth()->user()->isAdmin())
                         <x-nav-link :href="route('admin.theses.index')" :active="request()->routeIs('admin.theses.*')">
-                            {{ __('Admin Theses') }}
+                            {{ __('Theses') }}
                         </x-nav-link>
                         <x-nav-link :href="route('admin.postgrad.index')" :active="request()->routeIs('admin.postgrad.*')">
                             {{ __('Postgrad Theses') }}
@@ -114,7 +114,7 @@
             @endif
             @if (auth()->user()->isAdmin())
                 <x-responsive-nav-link :href="route('admin.theses.index')" :active="request()->routeIs('admin.theses.*')">
-                    {{ __('Admin Theses') }}
+                    {{ __('Theses') }}
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.postgrad.index')" :active="request()->routeIs('admin.postgrad.*')">
                     {{ __('Postgrad Theses') }}

@@ -5,16 +5,88 @@ use App\Http\Controllers\ThesisController;
 use App\Http\Controllers\Admin\ThesisReviewController;
 use App\Http\Controllers\Admin\PostgradThesisController;
 use App\Http\Controllers\Admin\UserManagementController;
-use App\Models\Thesis;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\VerifyController;
-
+use App\Models\PostgradThesis;
+use App\Models\Thesis;
+use App\Models\User;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/verify/{token}', [VerifyController::class, 'show'])->name('verify.show');
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    Route::get('/', fn () => view('dashboard'))->name('dashboard');
-    
+    Route::get('/', function () {
+        $user = auth()->user();
+
+        $thesisStats = null;
+        $adviserStats = null;
+        $adminStats = null;
+
+        if ($user->isStudent()) {
+            $statusCounts = Thesis::query()
+                ->selectRaw('status, COUNT(*) as count')
+                ->where('user_id', $user->id)
+                ->groupBy('status')
+                ->pluck('count', 'status')
+                ->map(fn ($count) => (int) $count);
+
+            $thesisStats = [
+                'uploaded' => $statusCounts->sum(),
+                'pending' => $statusCounts['pending'] ?? 0,
+                'approved' => $statusCounts['approved'] ?? 0,
+                'rejected' => $statusCounts['rejected'] ?? 0,
+                'passed' => $statusCounts['passed'] ?? 0,
+            ];
+        } elseif ($user->isAdviser()) {
+            $adviserTheses = Thesis::query()->where('adviser_id', $user->id);
+
+            $statusCounts = (clone $adviserTheses)
+                ->selectRaw('status, COUNT(*) as count')
+                ->groupBy('status')
+                ->pluck('count', 'status')
+                ->map(fn ($count) => (int) $count);
+
+            $adviserStats = [
+                'theses' => (clone $adviserTheses)->count(),
+                'students' => (clone $adviserTheses)->distinct('user_id')->count('user_id'),
+                'pending' => $statusCounts['pending'] ?? 0,
+                'approved' => $statusCounts['approved'] ?? 0,
+                'rejected' => $statusCounts['rejected'] ?? 0,
+                'passed' => $statusCounts['passed'] ?? 0,
+            ];
+        } elseif ($user->isAdmin()) {
+            $statusCounts = Thesis::query()
+                ->selectRaw('status, COUNT(*) as count')
+                ->groupBy('status')
+                ->pluck('count', 'status')
+                ->map(fn ($count) => (int) $count);
+
+            $roleCounts = User::query()
+                ->selectRaw('role, COUNT(*) as count')
+                ->whereIn('role', [User::ROLE_STUDENT, User::ROLE_ADVISER])
+                ->groupBy('role')
+                ->pluck('count', 'role')
+                ->map(fn ($count) => (int) $count);
+
+            $adminStats = [
+                'theses' => Thesis::count(),
+                'postgrad_theses' => PostgradThesis::count(),
+                'users' => User::count(),
+                'students' => $roleCounts[User::ROLE_STUDENT] ?? 0,
+                'advisers' => $roleCounts[User::ROLE_ADVISER] ?? 0,
+                'pending' => $statusCounts['pending'] ?? 0,
+                'approved' => $statusCounts['approved'] ?? 0,
+                'rejected' => $statusCounts['rejected'] ?? 0,
+                'passed' => $statusCounts['passed'] ?? 0,
+            ];
+        }
+
+        return view('dashboard', [
+            'thesisStats' => $thesisStats,
+            'adviserStats' => $adviserStats,
+            'adminStats' => $adminStats,
+        ]);
+    })->name('dashboard');
+
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -29,7 +101,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/theses', [ThesisController::class, 'index'])->name('theses.index');
     Route::get('/theses/create', [ThesisController::class, 'create'])->name('theses.create');
     Route::post('/theses', [ThesisController::class, 'store'])->name('theses.store');
-
 
     // Secure file access (owner OR admin)
     Route::get('/theses/{thesis}/download/{type}', [ThesisController::class, 'download'])
@@ -134,4 +205,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

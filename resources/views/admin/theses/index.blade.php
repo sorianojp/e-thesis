@@ -61,7 +61,7 @@
                                     @elseif (!is_null($t->grade))
                                         {{ number_format((float) $t->grade, 2) }}
                                     @elseif ($t->status === 'approved')
-                                        <span class="text-gray-500">Pending</span>
+                                        <span class="text-gray-500">N/A</span>
                                     @else
                                         <span class="text-gray-500">N/A</span>
                                     @endif
@@ -75,7 +75,7 @@
                                             </x-primary-button>
                                         </a>
                                     @elseif ($t->status === 'pending')
-                                        <span class="text-sm text-gray-500">No actions available</span>
+                                        <span class="text-sm text-gray-500">N/A</span>
                                     @elseif ($t->status === 'passed')
                                         <span class="text-sm text-gray-500">N/A</span>
                                     @endif

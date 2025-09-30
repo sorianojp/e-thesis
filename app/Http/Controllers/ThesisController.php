@@ -66,8 +66,10 @@ class ThesisController extends Controller
         ]);
 
         $userId = $req->user()->id;
-        $latestVersion = Thesis::where('user_id', $userId)->max('version');
-        $version = ($latestVersion ?? 0) + 1;
+        $latestVersionForTitle = Thesis::where('user_id', $userId)
+            ->where('title', $data['title'])
+            ->max('version');
+        $version = ($latestVersionForTitle ?? 0) + 1;
         $prefix = trim(env('DO_SPACES_FOLDER', ''), '/'); // e.g., "prod" or ""
 
         $basePath = $prefix ? "{$prefix}/" : '';
