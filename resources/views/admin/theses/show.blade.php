@@ -42,26 +42,12 @@
                     <div>
                         <p class="mb-1"><b>Attachments:</b></p>
                         <a class="text-blue-700 hover:underline mr-4"
-                            href="{{ route('theses.download', [$thesis, 'thesis']) }}">View
-                            Thesis PDF</a>
+                            href="{{ route('theses.download', [$thesis, 'thesis']) }}">Thesis</a>
+                        <a class="text-blue-700 hover:underline mr-4"
+                            href="{{ route('theses.download', [$thesis, 'endorsement']) }}">Endorsement</a>
                         <a class="text-blue-700 hover:underline"
-                            href="{{ route('theses.download', [$thesis, 'endorsement']) }}">View Endorsement</a>
+                            href="{{ route('theses.download', [$thesis, 'abstract']) }}">Abstract</a>
                     </div>
-
-                    @if ($thesis->abstract_pdf_path || $thesis->abstract)
-                        <div class="mt-6 border rounded p-4 bg-gray-50">
-                            <b>Abstract</b>
-                            @if ($thesis->abstract_pdf_path)
-                                <p class="mt-2">
-                                    <a class="text-blue-700 hover:underline"
-                                        href="{{ route('theses.download', [$thesis, 'abstract']) }}">Download
-                                        Abstract</a>
-                                </p>
-                            @else
-                                <p class="whitespace-pre-line mt-1">{{ $thesis->abstract }}</p>
-                            @endif
-                        </div>
-                    @endif
 
                     @if ($thesis->status === 'approved')
                         <div class="mt-6 border rounded p-4 bg-gray-50">
