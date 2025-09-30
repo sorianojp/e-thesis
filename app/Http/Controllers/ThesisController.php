@@ -28,8 +28,14 @@ class ThesisController extends Controller
             ->where('role', User::ROLE_ADVISER)
             ->orderBy('name')
             ->get(['id', 'name']);
+        $previousTitles = Thesis::query()
+            ->where('user_id', auth()->id())
+            ->orderByDesc('created_at')
+            ->pluck('title')
+            ->unique()
+            ->values();
 
-        return view('student.theses.create', compact('courses', 'advisers'));
+        return view('student.theses.create', compact('courses', 'advisers', 'previousTitles'));
     }
 
     public function store(Request $req)
