@@ -15,7 +15,6 @@
                 <table class="w-full text-sm text-left rtl:text-right text-gray-500">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                         <tr>
-                            <th scope="col" class="px-6 py-3">Version</th>
                             <th scope="col" class="px-6 py-3">Title</th>
                             <th scope="col" class="px-6 py-3">Course</th>
                             <th scope="col" class="px-6 py-3">Student</th>
@@ -27,7 +26,6 @@
                     <tbody>
                         @forelse ($theses as $t)
                             <tr class="bg-white border-b border-gray-200 hover:bg-gray-50">
-                                <td class="px-6 py-4">{{ $t->version }}</td>
                                 <td class="px-6 py-4">{{ $t->title }}</td>
                                 <td class="px-6 py-4">{{ $t->course->name }}</td>
                                 <td class="px-6 py-4">{{ $t->student->name }}</td>
@@ -84,7 +82,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td class="px-6 py-4 text-center text-sm text-gray-500" colspan="7">
+                                <td class="px-6 py-4 text-center text-sm text-gray-500" colspan="6">
                                     No theses to display.
                                 </td>
                             </tr>

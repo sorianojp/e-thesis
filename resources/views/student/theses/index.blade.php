@@ -20,10 +20,10 @@
                 <table class="w-full text-sm text-left rtl:text-right text-gray-500">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                         <tr>
-                            <th scope="col" class="px-6 py-3">Version</th>
                             <th scope="col" class="px-6 py-3">Title</th>
                             <th scope="col" class="px-6 py-3">Course</th>
                             <th scope="col" class="px-6 py-3">Attachments</th>
+                            <th scope="col" class="px-6 py-3">Plagiarism</th>
                             <th scope="col" class="px-6 py-3">Status</th>
                             <th scope="col" class="px-6 py-3">Certificate / Approval</th>
                         </tr>
@@ -31,7 +31,6 @@
                     <tbody>
                         @forelse ($theses as $t)
                             <tr class="bg-white border-b border-gray-200 hover:bg-gray-50">
-                                <td class="px-6 py-4">{{ $t->version }}</td>
                                 <td class="px-6 py-4">{{ $t->title }}</td>
                                 <td class="px-6 py-4">{{ $t->course->name }}</td>
                                 <td class="px-6 py-4">
@@ -43,6 +42,9 @@
                                         <a class="text-blue-700 hover:underline"
                                             href="{{ route('theses.download', [$t, 'abstract']) }}">Abstract</a><br />
                                     @endif
+                                </td>
+                                <td class="px-6 py-4">
+                                    <x-plagiarism-summary :thesis="$t" :compact="true" />
                                 </td>
                                 <td class="px-6 py-4 capitalize font-bold">
                                     <span

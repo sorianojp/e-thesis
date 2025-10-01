@@ -39,4 +39,14 @@ return [
         'base_url' => env('STEP_API_BASE', 'https://udd.steps.com.ph'),
     ],
 
+    'winston' => [
+        'key' => env('WINSTON_API_KEY', env('WINSTON_AI_TOKEN')),
+        'base_uri' => env('WINSTON_API_BASE_URI', env('WINSTON_AI_BASE_URL', 'https://api.gowinston.ai/v2')),
+        'endpoint' => env('WINSTON_API_ENDPOINT', env('WINSTON_AI_PLAGIARISM_PATH', 'plagiarism')),
+        'language' => env('WINSTON_API_LANGUAGE', env('WINSTON_AI_LANGUAGE', 'en')),
+        'country' => env('WINSTON_API_COUNTRY', env('WINSTON_AI_COUNTRY', 'us')),
+        'timeout' => env('WINSTON_API_TIMEOUT', env('WINSTON_AI_TIMEOUT', 45)),
+        'max_characters' => env('WINSTON_API_MAX_CHARACTERS', 20000),
+    ],
+
 ];

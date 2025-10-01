@@ -62,10 +62,6 @@
                             <dd class="col-span-2 text-gray-900">{{ $thesis->title }}</dd>
                         </div>
                         <div class="grid grid-cols-3 gap-4 p-4">
-                            <dt class="text-gray-500">Version</dt>
-                            <dd class="col-span-2 text-gray-900">{{ $thesis->version }}</dd>
-                        </div>
-                        <div class="grid grid-cols-3 gap-4 p-4">
                             <dt class="text-gray-500">Approved on</dt>
                             <dd class="col-span-2 text-gray-900">{{ optional($thesis->approved_at)->format('F d, Y') }}
                             </dd>
@@ -134,10 +130,6 @@
                         <div class="grid grid-cols-3 gap-4 p-4">
                             <dt class="text-gray-500">Title</dt>
                             <dd class="col-span-2 text-gray-900">{{ $thesis->title }}</dd>
-                        </div>
-                        <div class="grid grid-cols-3 gap-4 p-4">
-                            <dt class="text-gray-500">Version</dt>
-                            <dd class="col-span-2 text-gray-900">{{ $thesis->version }}</dd>
                         </div>
                     </dl>
 

@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Course;
 use App\Models\Thesis;
 use App\Models\User;
+use App\Services\PlagiarismChecker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class ThesisController extends Controller
@@ -72,10 +74,6 @@ class ThesisController extends Controller
         ]);
 
         $userId = $req->user()->id;
-        $latestVersionForTitle = Thesis::where('user_id', $userId)
-            ->where('title', $data['title'])
-            ->max('version');
-        $version = ($latestVersionForTitle ?? 0) + 1;
         $prefix = trim(env('DO_SPACES_FOLDER', ''), '/'); // e.g., "prod" or ""
 
         $basePath = $prefix ? "{$prefix}/" : '';
@@ -87,9 +85,27 @@ class ThesisController extends Controller
         $slug = str($data['title'])->slug()->limit(80, '');
         $timestamp = now()->format('Ymd_His');
 
-        $thesisName = "thesis_v{$version}_{$slug}_{$timestamp}.pdf";
-        $endorseName = "endorsement_v{$version}_{$slug}_{$timestamp}.pdf";
-        $abstractName = "abstract_v{$version}_{$slug}_{$timestamp}.pdf";
+        $uniqueSuffix = Str::lower(Str::random(6));
+
+        $thesisName = "thesis_{$slug}_{$timestamp}_{$uniqueSuffix}.pdf";
+        $endorseName = "endorsement_{$slug}_{$timestamp}_{$uniqueSuffix}.pdf";
+        $abstractName = "abstract_{$slug}_{$timestamp}_{$uniqueSuffix}.pdf";
+
+        $plagiarismScore = null;
+        $plagiarismReport = null;
+        $plagiarismCheckedAt = null;
+
+        if ($req->hasFile('thesis_pdf')) {
+            $scan = app(PlagiarismChecker::class)->scan($req->file('thesis_pdf'));
+
+            if ($scan) {
+                $plagiarismScore = is_numeric($scan['score'] ?? null)
+                    ? (int) $scan['score']
+                    : null;
+                $plagiarismReport = $scan['response'] ?? null;
+                $plagiarismCheckedAt = now();
+            }
+        }
 
         $thesisPath = Storage::disk('spaces')->putFileAs($thesisDir, $req->file('thesis_pdf'), $thesisName);
         $endorsePath = Storage::disk('spaces')->putFileAs($endorseDir, $req->file('endorsement_pdf'), $endorseName);
@@ -102,13 +118,15 @@ class ThesisController extends Controller
         Thesis::create([
             'user_id' => $userId,
             'course_id' => $data['course_id'],
-            'version' => $version,
             'title' => $data['title'],
             'adviser_id' => $data['adviser_id'],
             'adviser' => $adviserName,
             'abstract_pdf_path' => $abstractPath,
             'thesis_pdf_path' => $thesisPath,
             'endorsement_pdf_path' => $endorsePath,
+            'plagiarism_score' => $plagiarismScore,
+            'plagiarism_report' => $plagiarismReport,
+            'plagiarism_checked_at' => $plagiarismCheckedAt,
             // 'status' defaults to pending via migration
         ]);
 

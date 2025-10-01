@@ -17,7 +17,6 @@
                     <p class="mb-1"><b>Student:</b> {{ $thesis->student->name }} ({{ $thesis->student->email }})</p>
                     <p class="mb-1"><b>Course:</b> {{ $thesis->course->name }}</p>
                     <p class="mb-1"><b>Title:</b> {{ $thesis->title }}</p>
-                    <p class="mb-1"><b>Version:</b> {{ $thesis->version }}</p>
                     <p class="mb-1"><b>Adviser:</b>
                         {{ optional($thesis->adviserUser)->name ?? ($thesis->adviser ?? 'Unassigned') }}
                     </p>
@@ -47,6 +46,12 @@
                             href="{{ route('theses.download', [$thesis, 'endorsement']) }}">Endorsement</a>
                         <a class="text-blue-700 hover:underline"
                             href="{{ route('theses.download', [$thesis, 'abstract']) }}">Abstract</a>
+                    </div>
+
+                    <hr class="my-6" />
+                    <div>
+                        <p class="mb-1"><b>Plagiarism Scan:</b></p>
+                        <x-plagiarism-summary :thesis="$thesis" />
                     </div>
 
                     @if ($thesis->status === 'approved')

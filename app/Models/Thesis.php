@@ -11,13 +11,14 @@ class Thesis extends Model
         'approved_at' => 'datetime',
         'defense_date' => 'date',
         'grade' => 'decimal:2',
+        'plagiarism_report' => 'array',
+        'plagiarism_checked_at' => 'datetime',
     ];
 
     protected $fillable = [
         'user_id',
         'course_id',
         'adviser_id',
-        'version',
         'title',
         'adviser',
         'abstract',
@@ -34,6 +35,9 @@ class Thesis extends Model
         'panelist_one',
         'panelist_two',
         'defense_date',
+        'plagiarism_score',
+        'plagiarism_report',
+        'plagiarism_checked_at',
     ];
 
     public function student(): BelongsTo
