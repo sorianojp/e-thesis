@@ -62,6 +62,10 @@
                             <dd class="col-span-2 text-gray-900">{{ $thesisTitle->title }}</dd>
                         </div>
                         <div class="grid grid-cols-3 gap-4 p-4">
+                            <dt class="text-gray-500">Stage</dt>
+                            <dd class="col-span-2 text-gray-900">{{ $stageLabel ?? 'Final Defense' }}</dd>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 p-4">
                             <dt class="text-gray-500">Approved on</dt>
                             <dd class="col-span-2 text-gray-900">{{ optional($thesis->approved_at)->format('F d, Y') }}
                             </dd>

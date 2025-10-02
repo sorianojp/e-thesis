@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class ThesisController extends Controller
 {
@@ -17,6 +18,10 @@ class ThesisController extends Controller
         abort_unless($req->user()->isStudent() && $thesisTitle->user_id === $req->user()->id, 403);
 
         $req->validate([
+            'chapter_label' => [
+                'required',
+                Rule::in($thesisTitle->requiredChapters()),
+            ],
             'thesis_pdf' => [
                 'required',
                 'file',
@@ -56,17 +61,28 @@ class ThesisController extends Controller
             $thesisName
         );
 
-        Thesis::create([
+        $chapterLabel = $req->string('chapter_label');
+
+        $chapter = Thesis::query()->firstOrNew([
             'thesis_title_id' => $thesisTitle->id,
+            'chapter_label' => $chapterLabel,
+        ]);
+
+        if ($chapter->exists && $chapter->thesis_pdf_path) {
+            Storage::disk('spaces')->delete($chapter->thesis_pdf_path);
+        }
+
+        $chapter->fill([
             'thesis_pdf_path' => $thesisPath,
             'status' => 'pending',
             'plagiarism_score' => $plagiarismScore,
             'plagiarism_report' => $plagiarismReport,
             'plagiarism_checked_at' => $plagiarismCheckedAt,
-        ]);
+            'approved_at' => null,
+            'approved_by' => null,
+        ])->save();
 
         $thesisTitle->forceFill([
-            'grade' => null,
             'verification_token' => null,
             'panel_chairman' => null,
             'panelist_one' => null,

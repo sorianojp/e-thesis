@@ -22,7 +22,7 @@ class VerifyController extends Controller
         }
 
         /** @var Thesis|null $thesis */
-        $thesis = $thesisTitle->theses->firstWhere(fn (Thesis $t) => in_array($t->status, ['approved', 'passed'], true));
+        $thesis = $thesisTitle->theses->first(fn (Thesis $t) => in_array($t->status, ['approved', 'passed'], true));
 
         if (!$thesis) {
             return response()->view('verify.result', [
@@ -31,10 +31,15 @@ class VerifyController extends Controller
             ], 200);
         }
 
+        $stageLabel = $thesisTitle->chaptersAreApproved()
+            ? 'Final Defense'
+            : ($thesisTitle->titleDefenseApproved() ? 'Title Defense' : 'In Progress');
+
         return view('verify.result', [
             'status' => 'valid',
             'thesisTitle' => $thesisTitle,
             'thesis' => $thesis,
+            'stageLabel' => $stageLabel,
         ]);
     }
 }

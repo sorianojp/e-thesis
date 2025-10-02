@@ -15,9 +15,9 @@ class Thesis extends Model
 
     protected $fillable = [
         'thesis_title_id',
+        'chapter_label',
         'thesis_pdf_path',
         'status',
-        'adviser_remarks',
         'approved_at',
         'approved_by',
         'plagiarism_score',

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Thesis;
+use App\Models\ThesisTitle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Carbon\Carbon;
@@ -38,55 +39,50 @@ class ThesisReviewController extends Controller
             'thesisTitle.student:id,name,email',
             'thesisTitle.course:id,name',
             'thesisTitle.adviserUser:id,name',
+            'thesisTitle.theses' => fn ($q) => $q->latest('updated_at'),
         ]);
-        return view('admin.theses.show', compact('thesis'));
+        $approvalEligible = $thesis->thesisTitle->chaptersAreApproved();
+        $approvalSheetThesis = $approvalEligible
+            ? $thesis->thesisTitle->theses->first(fn ($chapter) => in_array($chapter->status, ['approved', 'passed']))
+            : null;
+
+        return view('admin.theses.show', compact('thesis', 'approvalEligible', 'approvalSheetThesis'));
     }
 
     public function approve(Request $req, Thesis $thesis) {
         Gate::authorize('admin', Thesis::class);
         Gate::authorize('review', $thesis);
-        $data = $req->validate(['adviser_remarks' => 'nullable|string|max:2000']);
+        $req->validate([]);
 
         $thesis->loadMissing('thesisTitle');
 
         $thesis->update([
             'status' => 'approved',
-            'adviser_remarks' => $data['adviser_remarks'] ?? null,
             'approved_at' => Carbon::now(),
             'approved_by' => $req->user()->id,
         ]);
 
-        $thesis->thesisTitle->forceFill([
-            'grade' => null,
-            'verification_token' => $thesis->thesisTitle->verification_token ?: Str::random(48),
-        ])->save();
+        if ($thesis->thesisTitle->chaptersAreApproved() && !$thesis->thesisTitle->verification_token) {
+            $thesis->thesisTitle->forceFill(['verification_token' => Str::random(48)])->save();
+        }
 
-        $prefix = $req->user()->isAdmin() ? 'admin' : 'adviser';
-
-        return redirect()
-            ->route($prefix . '.theses.panel.edit', $thesis)
-            ->with('status', 'Approved! Please add panel details.');
+        return back()->with('status', "{$thesis->chapter_label} approved.");
     }
 
     public function reject(Request $req, Thesis $thesis) {
         Gate::authorize('admin', Thesis::class);
         Gate::authorize('review', $thesis);
-        $data = $req->validate(['adviser_remarks' => 'required|string|max:2000']);
+        $req->validate([]);
 
         $thesis->loadMissing('thesisTitle');
 
         $thesis->update([
             'status' => 'rejected',
-            'adviser_remarks' => $data['adviser_remarks'],
             'approved_at' => null,
             'approved_by' => null,
         ]);
 
-        $thesis->thesisTitle->forceFill(['grade' => null])->save();
-
-       $prefix = $req->user()->isAdmin() ? 'admin' : 'adviser';
-
-       return redirect()->route($prefix . '.theses.index')->with('status', 'Rejected!');
+        return back()->with('status', "{$thesis->chapter_label} rejected.");
     }
 
     public function editPanel(Thesis $thesis)
@@ -94,6 +90,7 @@ class ThesisReviewController extends Controller
         Gate::authorize('admin', Thesis::class);
         Gate::authorize('review', $thesis);
         abort_unless($thesis->status === 'approved', 403);
+        abort_unless($thesis->thesisTitle->titleDefenseApproved(), 403);
 
         $thesis->loadMissing([
             'thesisTitle.student:id,name',
@@ -108,6 +105,7 @@ class ThesisReviewController extends Controller
         Gate::authorize('admin', Thesis::class);
         Gate::authorize('review', $thesis);
         abort_unless($thesis->status === 'approved', 403);
+        abort_unless($thesis->thesisTitle->titleDefenseApproved(), 403);
 
         $data = $req->validate([
             'panel_chairman' => ['required', 'string', 'max:255'],
@@ -125,15 +123,26 @@ class ThesisReviewController extends Controller
             ->with('status', 'Panel details saved.');
     }
 
-    public function certificate(Thesis $thesis) {
+    public function certificate(Thesis $thesis)
+    {
         Gate::authorize('downloadCertificate', $thesis);
         abort_unless(in_array($thesis->status, ['approved', 'passed'], true), 403);
+
+        $stage = request()->query('stage', 'final');
+        abort_unless(in_array($stage, ['title', 'final'], true), 404);
 
         $thesis->loadMissing([
             'thesisTitle.student:id,name',
             'thesisTitle.course:id,name',
             'thesisTitle.adviserUser:id,name',
+            'thesisTitle.theses' => fn ($q) => $q->latest('updated_at'),
         ]);
+
+        if ($stage === 'title') {
+            abort_unless($thesis->thesisTitle->titleDefenseApproved(), 403);
+        } else {
+            abort_unless($thesis->thesisTitle->chaptersAreApproved(), 403);
+        }
 
         if (!$thesis->thesisTitle->verification_token) {
             $thesis->thesisTitle->forceFill(['verification_token' => Str::random(48)])->save();
@@ -150,6 +159,9 @@ class ThesisReviewController extends Controller
                 ->generate($verifyUrl)
         );
 
+        $stageName = $stage === 'title' ? 'Title Defense' : 'Final Defense';
+        $stageLabel = "Certificate of Eligibility to Defend - {$stageName}";
+
         $pdf = PDF::loadView('pdf.certificate', [
             'thesis'      => $thesis,
             'student'     => $thesis->thesisTitle->student,
@@ -157,10 +169,14 @@ class ThesisReviewController extends Controller
             // 'verifyUrl'   => $verifyUrl,
             'qrPng'       => $qrPng,
             'visibleCode' => strtoupper(substr(hash('sha256', $thesis->thesisTitle->verification_token), 0, 10)),
+            'stageLabel'  => $stageLabel,
+            'stageName'   => $stageName,
         ])->setPaper('A4');
 
         $studentSlug = str($thesis->thesisTitle->student->name)->slug('-');
-        return $pdf->download("Eligibility_to_Defend_{$studentSlug}.pdf");
+        $fileSuffix = $stage === 'title' ? 'Title_Defense' : 'Final_Defense';
+
+        return $pdf->download("Eligibility_to_Defend_{$fileSuffix}_{$studentSlug}.pdf");
     }
 
     public function approvalSheet(Thesis $thesis)
@@ -172,7 +188,7 @@ class ThesisReviewController extends Controller
             'thesisTitle.adviserUser:id,name',
         ]);
 
-        abort_unless($thesis->status === 'passed' && !is_null($thesis->thesisTitle->grade), 403);
+        abort_unless($thesis->thesisTitle->chaptersAreApproved(), 403);
 
         $pdf = PDF::loadView('pdf.approval_sheet', [
             'thesis'      => $thesis,
@@ -193,20 +209,15 @@ class ThesisReviewController extends Controller
         Gate::authorize('review', $thesis);
         abort_unless($thesis->status === 'approved', 403);
 
-        $data = $req->validate([
-            'grade' => ['required', 'numeric', 'min:0', 'max:100'],
-        ]);
-
         $thesis->loadMissing('thesisTitle');
 
         $thesis->update(['status' => 'passed']);
-        $thesis->thesisTitle->update(['grade' => $data['grade']]);
 
         $prefix = $req->user()->isAdmin() ? 'admin' : 'adviser';
 
         return redirect()
             ->route($prefix . '.theses.index')
-            ->with('status', 'Grade saved. Thesis marked as passed.');
+            ->with('status', 'Chapter marked as passed.');
     }
 
 }

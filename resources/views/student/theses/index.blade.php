@@ -18,7 +18,37 @@
 
             <div class="space-y-4">
                 @forelse ($thesisTitles as $title)
-                    @php($latest = $title->theses->first())
+                    @php
+                        $latest = $title->theses->sortByDesc('updated_at')->first();
+                        $requiredCount = count($title->requiredChapters());
+                        $approvedCount = $title->theses->whereIn('status', ['approved', 'passed'])->unique('chapter_label')->count();
+                        $hasRejected = $title->theses->contains(fn ($chapter) => $chapter->status === 'rejected');
+                        $titleDefenseReady = $title->titleDefenseApproved();
+                        $finalDefenseReady = $title->chaptersAreApproved();
+
+                        if ($hasRejected) {
+                            $statusTuple = ['Rejected', 'bg-red-100 text-red-800'];
+                        } elseif ($finalDefenseReady) {
+                            $statusTuple = ['Final Defense Ready', 'bg-blue-100 text-blue-800'];
+                        } elseif ($titleDefenseReady) {
+                            $statusTuple = ['Title Defense Ready', 'bg-green-100 text-green-800'];
+                        } elseif ($latest) {
+                            $statusTuple = [
+                                ucfirst($latest->status),
+                                match ($latest->status) {
+                                    'pending' => 'bg-yellow-100 text-yellow-800',
+                                    'approved' => 'bg-green-100 text-green-800',
+                                    'rejected' => 'bg-red-100 text-red-800',
+                                    'passed' => 'bg-blue-100 text-blue-800',
+                                    default => 'bg-gray-100 text-gray-700',
+                                },
+                            ];
+                        } else {
+                            $statusTuple = ['No submissions yet', 'bg-gray-100 text-gray-700'];
+                        }
+
+                        [$latestStatus, $statusClass] = $statusTuple;
+                    @endphp
                     <div class="bg-white shadow rounded-lg p-6 flex flex-col md:flex-row md:items-center md:justify-between">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900">{{ $title->title }}</h3>
@@ -29,24 +59,16 @@
                             <p class="text-sm text-gray-500 mt-1">
                                 Submissions: {{ $title->theses_count }}
                             </p>
-                            <p class="text-sm text-gray-500 mt-1">
-                                Latest Status:
-                                @if ($latest)
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium capitalize {{ $latest->status === 'pending'
-                                            ? 'bg-yellow-100 text-yellow-800'
-                                            : ($latest->status === 'approved'
-                                                ? 'bg-green-100 text-green-800'
-                                                : ($latest->status === 'rejected'
-                                                    ? 'bg-red-100 text-red-800'
-                                                    : ($latest->status === 'passed'
-                                                        ? 'bg-blue-100 text-blue-800'
-                                                        : 'bg-gray-100 text-gray-700'))) }}">
-                                        {{ $latest->status }}
-                                    </span>
-                                @else
-                                    <span class="text-gray-500">No thesis uploaded yet</span>
-                                @endif
+                            @if ($requiredCount)
+                                <p class="text-sm text-gray-500 mt-1">
+                                    Chapters approved: {{ $approvedCount }} / {{ $requiredCount }}
+                                </p>
+                            @endif
+                            <p class="text-sm text-gray-500 mt-1 flex items-center gap-2">
+                                <span>Latest Status:</span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium {{ $statusClass }}">
+                                    {{ $latestStatus }}
+                                </span>
                             </p>
                         </div>
                         <div class="mt-4 md:mt-0">

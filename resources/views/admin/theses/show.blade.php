@@ -17,6 +17,7 @@
                     <p class="mb-1"><b>Student:</b> {{ $thesis->thesisTitle->student->name }} ({{ $thesis->thesisTitle->student->email }})</p>
                     <p class="mb-1"><b>Course:</b> {{ optional($thesis->thesisTitle->course)->name }}</p>
                     <p class="mb-1"><b>Title:</b> {{ $thesis->thesisTitle->title }}</p>
+                    <p class="mb-1"><b>Chapter:</b> {{ $thesis->chapter_label }}</p>
                     <p class="mb-1"><b>Adviser:</b>
                         {{ optional($thesis->thesisTitle->adviserUser)->name ?? 'Unassigned' }}
                     </p>
@@ -34,9 +35,30 @@
                             {{ $thesis->status }}
                         </span>
                     </p>
-                    @if (!is_null($thesis->thesisTitle->grade))
-                        <p class="mb-1"><b>Grade:</b> {{ number_format((float) $thesis->thesisTitle->grade, 2) }}</p>
+                @php($approvalEligible = $approvalEligible ?? false)
+                @php($approvalSheetThesis = $approvalSheetThesis ?? null)
+                @php($titleDefenseReady = $thesis->thesisTitle->titleDefenseApproved())
+                @php($finalDefenseReady = $thesis->thesisTitle->chaptersAreApproved())
+                @php($firstApproved = $thesis->thesisTitle->theses->first(fn ($chapter) => in_array($chapter->status, ['approved', 'passed'])))
+
+                <div class="text-sm text-gray-500 mb-1">
+                    All grading is now handled offline; certificates will display a blank grade line.
+                </div>
+                <div class="mt-3 flex flex-wrap gap-2 text-sm text-gray-600">
+                    <span>Title Defense: {{ $titleDefenseReady ? 'Ready' : 'Pending' }} • Final Defense: {{ $finalDefenseReady ? 'Ready' : 'Pending' }}</span>
+                    @if ($titleDefenseReady && $firstApproved)
+                        <a class="text-indigo-600 hover:underline"
+                            href="{{ route('theses.certificate', [$firstApproved, 'stage' => 'title']) }}">Title Defense Certificate</a>
                     @endif
+                    @if ($finalDefenseReady && $firstApproved)
+                        <a class="text-indigo-600 hover:underline"
+                            href="{{ route('theses.certificate', [$firstApproved, 'stage' => 'final']) }}">Final Defense Certificate</a>
+                    @endif
+                    @if ($approvalEligible && $approvalSheetThesis)
+                        <a class="text-indigo-600 hover:underline"
+                            href="{{ route('theses.approval', $approvalSheetThesis) }}">Download Approval Sheet</a>
+                    @endif
+                </div>
                     <hr class="my-6" />
                     <div>
                         <p class="mb-1"><b>Attachments:</b></p>
@@ -56,83 +78,58 @@
 
                     @if ($thesis->status === 'approved')
                         <div class="mt-6 border rounded p-4 bg-gray-50">
-                            <div class="flex justify-between items-start">
+                            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
                                 <b>Panel Details</b>
-                                @can('review', $thesis)
-                                    <a href="{{ route($routePrefix . '.theses.panel.edit', $thesis) }}"
-                                        class="text-sm text-indigo-600 hover:underline">Edit</a>
-                                @endcan
+                                @if ($titleDefenseReady && $firstApproved)
+                                    @can('review', $thesis)
+                                        <a href="{{ route($routePrefix . '.theses.panel.edit', $thesis) }}"
+                                            class="text-sm text-indigo-600 hover:underline">Edit</a>
+                                    @endcan
+                                @endif
                             </div>
-                            @if ($thesis->thesisTitle->panel_chairman || $thesis->thesisTitle->panelist_one || $thesis->thesisTitle->panelist_two || $thesis->thesisTitle->defense_date)
-                                <dl class="mt-2 space-y-1 text-sm text-gray-700">
-                                    @if ($thesis->thesisTitle->panel_chairman)
-                                        <div><span class="font-semibold">Chairman:</span> {{ $thesis->thesisTitle->panel_chairman }}
-                                        </div>
-                                    @endif
-                                    @if ($thesis->thesisTitle->panelist_one)
-                                        <div><span class="font-semibold">Panelist 1:</span> {{ $thesis->thesisTitle->panelist_one }}
-                                        </div>
-                                    @endif
-                                    @if ($thesis->thesisTitle->panelist_two)
-                                        <div><span class="font-semibold">Panelist 2:</span> {{ $thesis->thesisTitle->panelist_two }}
-                                        </div>
-                                    @endif
-                                    @if ($thesis->thesisTitle->defense_date)
-                                        <div><span class="font-semibold">Defense Date:</span>
-                                            {{ $thesis->thesisTitle->defense_date->format('F d, Y') }}
-                                        </div>
-                                    @endif
-                                </dl>
+                            <p class="text-xs text-gray-500 mt-2">Panel assignment unlocks once Chapters 1–3 are approved for Title Defense.</p>
+                            @if ($titleDefenseReady && $firstApproved)
+                                @if ($thesis->thesisTitle->panel_chairman || $thesis->thesisTitle->panelist_one || $thesis->thesisTitle->panelist_two || $thesis->thesisTitle->defense_date)
+                                    <dl class="mt-3 space-y-1 text-sm text-gray-700">
+                                        @if ($thesis->thesisTitle->panel_chairman)
+                                            <div><span class="font-semibold">Chairman:</span> {{ $thesis->thesisTitle->panel_chairman }}
+                                            </div>
+                                        @endif
+                                        @if ($thesis->thesisTitle->panelist_one)
+                                            <div><span class="font-semibold">Panelist 1:</span> {{ $thesis->thesisTitle->panelist_one }}
+                                            </div>
+                                        @endif
+                                        @if ($thesis->thesisTitle->panelist_two)
+                                            <div><span class="font-semibold">Panelist 2:</span> {{ $thesis->thesisTitle->panelist_two }}
+                                            </div>
+                                        @endif
+                                        @if ($thesis->thesisTitle->defense_date)
+                                            <div><span class="font-semibold">Defense Date:</span>
+                                                {{ $thesis->thesisTitle->defense_date->format('F d, Y') }}
+                                            </div>
+                                        @endif
+                                    </dl>
+                                @else
+                                    <p class="text-sm text-gray-500 mt-3">Panel details pending.</p>
+                                @endif
                             @else
-                                <p class="text-sm text-gray-500 mt-2">Panel details pending.</p>
+                                <p class="text-sm text-gray-500 mt-3">Await approval of Chapters 1–3 to enable panel assignment.</p>
                             @endif
                         </div>
                     @endif
                 </div>
 
                 @can('review', $thesis)
-                    @if ($thesis->status === 'approved')
-                        <form method="POST" action="{{ route($routePrefix . '.theses.grade', $thesis) }}"
-                            class="bg-white shadow sm:rounded p-6">
+                    <div class="flex flex-wrap gap-2">
+                        <form method="POST" action="{{ route($routePrefix . '.theses.approve', $thesis) }}">
                             @csrf
-                            <h3 class="font-semibold mb-2">Mark as Passed</h3>
-                            <div class="mb-3">
-                                <label for="grade" class="block text-sm font-medium text-gray-700">Grade</label>
-                                <input type="number" step="0.01" min="0" max="100" name="grade"
-                                    id="grade" value="{{ old('grade', $thesis->thesisTitle->grade) }}"
-                                    class="mt-1 w-full rounded border-gray-300" required>
-                                @error('grade')
-                                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-                            <div class='flex justify-end'>
-                                <x-primary-button type="submit">Save Grade</x-primary-button>
-                            </div>
-                        </form>
-                    @endif
-
-                    <form method="POST" action="{{ route($routePrefix . '.theses.approve', $thesis) }}"
-                        class="bg-white shadow sm:rounded p-6">
-                        @csrf
-                        <h3 class="font-semibold mb-2">Approve</h3>
-                        <textarea name="adviser_remarks" rows="3" placeholder="Optional remarks" class="w-full rounded border-gray-300"></textarea>
-                        <div class='flex justify-end'>
                             <x-primary-button type="submit">Approve</x-primary-button>
-                        </div>
-                    </form>
-
-                    <form method="POST" action="{{ route($routePrefix . '.theses.reject', $thesis) }}"
-                        class="bg-white shadow sm:rounded p-6">
-                        @csrf
-                        <h3 class="font-semibold mb-2">Reject</h3>
-                        <textarea name="adviser_remarks" rows="3" placeholder="Required remarks" class="w-full rounded border-gray-300"></textarea>
-                        @error('adviser_remarks')
-                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                        @enderror
-                        <div class='flex justify-end'>
+                        </form>
+                        <form method="POST" action="{{ route($routePrefix . '.theses.reject', $thesis) }}">
+                            @csrf
                             <x-danger-button type="submit">Reject</x-danger-button>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 @else
                     <div class="bg-white shadow sm:rounded p-6 col-span-2">
                         <p class="text-sm text-gray-600">Viewing only. Approval actions are reserved for the assigned

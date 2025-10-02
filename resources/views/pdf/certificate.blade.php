@@ -91,7 +91,7 @@
 
     @php($adviserName = optional($thesis->thesisTitle->adviserUser)->name)
 
-    <div class="title">CERTIFICATE OF ELIGIBILITY TO DEFEND</div>
+    <div class="title">{{ $stageLabel ?? 'CERTIFICATE OF ELIGIBILITY TO DEFEND' }}</div>
     <p class="mt" style="font-size:10pt;">
         Verification code: <strong>{{ strtoupper($visibleCode) }}</strong>
     </p>
@@ -123,7 +123,7 @@
             <p class="mt">Scheduled Defense: <strong>{{ $thesis->thesisTitle->defense_date->format('F d, Y') }}</strong></p>
         @endif
 
-        <p class="mt">Accordingly, the student is <strong>ELIGIBLE TO DEFEND</strong> as of {{ $approvedAt }}.</p>
+        <p class="mt">Accordingly, the student is <strong>ELIGIBLE TO DEFEND {{ strtoupper($stageName ?? 'Final Defense') }}</strong> as of {{ $approvedAt }}.</p>
     </div>
 
     <div class="sig">

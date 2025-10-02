@@ -16,10 +16,9 @@
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                         <tr>
                             <th scope="col" class="px-6 py-3">Title</th>
-                            <th scope="col" class="px-6 py-3">Course</th>
+                            <th scope="col" class="px-6 py-3">Chapter</th>
                             <th scope="col" class="px-6 py-3">Student</th>
                             <th scope="col" class="px-6 py-3">Status</th>
-                            <th scope="col" class="px-6 py-3">Grade</th>
                             <th scope="col" class="px-6 py-3">Action</th>
                         </tr>
                     </thead>
@@ -27,7 +26,7 @@
                         @forelse ($theses as $t)
                             <tr class="bg-white border-b border-gray-200 hover:bg-gray-50">
                                 <td class="px-6 py-4">{{ $t->thesisTitle->title }}</td>
-                                <td class="px-6 py-4">{{ optional($t->thesisTitle->course)->name }}</td>
+                                <td class="px-6 py-4">{{ $t->chapter_label }}</td>
                                 <td class="px-6 py-4">{{ $t->thesisTitle->student->name }}</td>
                                 <td class="px-6 py-4 capitalize font-bold">
                                     <span
@@ -42,27 +41,6 @@
                                                         : ''))) }}">
                                         {{ $t->status }}
                                     </span>
-                                </td>
-
-                                <td class="px-6 py-4 text-sm text-gray-700">
-                                    @if (Auth::user()->can('review', $t) && $t->status === 'approved' && is_null($t->thesisTitle->grade))
-                                        <form method="POST" action="{{ route($routePrefix . '.theses.grade', $t) }}"
-                                            class="flex items-center gap-2">
-                                            @csrf
-                                            <label for="grade-{{ $t->id }}" class="sr-only">Grade</label>
-                                            <input id="grade-{{ $t->id }}" name="grade" type="number"
-                                                step="0.01" min="0" max="100"
-                                                class="w-20 rounded border-gray-300 text-sm" placeholder="Grade"
-                                                required>
-                                            <x-secondary-button type="submit">Save</x-secondary-button>
-                                        </form>
-                                    @elseif (!is_null($t->thesisTitle->grade))
-                                        {{ number_format((float) $t->thesisTitle->grade, 2) }}
-                                    @elseif ($t->status === 'approved')
-                                        <span class="text-gray-500">N/A</span>
-                                    @else
-                                        <span class="text-gray-500">N/A</span>
-                                    @endif
                                 </td>
 
                                 <td class="px-6 py-4">

@@ -15,7 +15,6 @@ class ThesisTitle extends Model
         'title',
         'abstract_pdf_path',
         'endorsement_pdf_path',
-        'grade',
         'verification_token',
         'panel_chairman',
         'panelist_one',
@@ -25,8 +24,88 @@ class ThesisTitle extends Model
 
     protected $casts = [
         'defense_date' => 'date',
-        'grade' => 'decimal:2',
     ];
+
+    public static function titleDefenseChapters(): array
+    {
+        return ['Chapter 1', 'Chapter 2', 'Chapter 3'];
+    }
+
+    public static function finalDefenseChapters(): array
+    {
+        return ['Chapter 1', 'Chapter 2', 'Chapter 3', 'Chapter 4', 'Chapter 5'];
+    }
+
+    public function requiredChapters(): array
+    {
+        return self::finalDefenseChapters();
+    }
+
+    public function titleDefenseApproved(): bool
+    {
+        $required = self::titleDefenseChapters();
+
+        $approved = $this->theses
+            ->whereIn('chapter_label', $required)
+            ->whereIn('status', ['approved', 'passed'])
+            ->pluck('chapter_label')
+            ->unique()
+            ->all();
+
+        sort($required);
+        sort($approved);
+
+        return $required === $approved;
+    }
+
+    public function chaptersAreApproved(): bool
+    {
+        $required = $this->requiredChapters();
+
+        if ($required === []) {
+            return false;
+        }
+
+        $chapters = $this->theses
+            ->whereIn('chapter_label', $required)
+            ->whereIn('status', ['approved', 'passed'])
+            ->pluck('chapter_label')
+            ->unique()
+            ->all();
+
+        sort($required);
+        sort($chapters);
+
+        return $required === $chapters;
+    }
+
+    public function approvedChaptersCount(): int
+    {
+        return $this->theses
+            ->whereIn('status', ['approved', 'passed'])
+            ->unique('chapter_label')
+            ->count();
+    }
+
+    public static function approvedChaptersCountForStudent(int $studentId): int
+    {
+        return static::query()
+            ->where('user_id', $studentId)
+            ->with(['theses' => fn ($q) => $q->whereIn('status', ['approved', 'passed'])])
+            ->get()
+            ->flatMap(fn (ThesisTitle $title) => $title->theses)
+            ->unique('chapter_label')
+            ->count();
+    }
+
+    public static function finalDefenseTitleForStudent(int $studentId): ?self
+    {
+        return static::query()
+            ->where('user_id', $studentId)
+            ->with(['theses' => fn ($q) => $q->latest('updated_at')])
+            ->get()
+            ->first(fn (ThesisTitle $title) => $title->chaptersAreApproved());
+    }
 
     public function student(): BelongsTo
     {

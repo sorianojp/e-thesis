@@ -17,7 +17,7 @@ class ThesisTitleController extends Controller
         abort_unless($req->user()->isStudent(), 403);
 
         $thesisTitles = ThesisTitle::query()
-            ->with(['theses' => fn ($q) => $q->latest('created_at')->take(1)])
+            ->with(['theses' => fn ($q) => $q->latest('updated_at')])
             ->withCount('theses')
             ->where('user_id', $req->user()->id)
             ->latest()
@@ -57,7 +57,6 @@ class ThesisTitleController extends Controller
                 'required',
                 Rule::exists('users', 'id')->where('role', User::ROLE_ADVISER),
             ],
-            'abstract' => ['nullable', 'string'],
             'abstract_pdf' => [
                 'required',
                 'file',
@@ -108,11 +107,6 @@ class ThesisTitleController extends Controller
             'endorsement_pdf_path' => $endorsementPath,
         ]);
 
-        if (!is_null($data['abstract'] ?? null)) {
-            $thesisTitle->abstract = $data['abstract'];
-            $thesisTitle->save();
-        }
-
         return redirect()
             ->route('theses.show', $thesisTitle)
             ->with('status', 'Title submitted. Upload your thesis document next.');
@@ -122,8 +116,38 @@ class ThesisTitleController extends Controller
     {
         abort_unless($req->user()->isStudent() && $thesisTitle->user_id === $req->user()->id, 403);
 
-        $thesisTitle->load(['theses' => fn ($q) => $q->latest('created_at')])->loadCount('theses');
+        $thesisTitle->load(['theses' => fn ($q) => $q->latest('updated_at')])->loadCount('theses');
 
-        return view('student.theses.show', compact('thesisTitle'));
+        $requiredChapters = $thesisTitle->requiredChapters();
+        $chapters = $thesisTitle->theses->keyBy('chapter_label');
+
+        return view('student.theses.show', [
+            'thesisTitle' => $thesisTitle,
+            'requiredChapters' => $requiredChapters,
+            'chapters' => $chapters,
+        ]);
+    }
+
+    public function certificates(Request $req)
+    {
+        abort_unless($req->user()->isStudent(), 403);
+
+        $studentId = $req->user()->id;
+        $thesisTitles = ThesisTitle::query()
+            ->where('user_id', $studentId)
+            ->with(['course:id,name', 'theses' => fn ($q) => $q->latest('updated_at')])
+            ->get();
+
+        $finalDefenseTitle = $thesisTitles->first(fn (ThesisTitle $title) => $title->chaptersAreApproved());
+        $approvalEligible = (bool) $finalDefenseTitle;
+        $approvalSheetThesis = $approvalEligible
+            ? $finalDefenseTitle->theses->first(fn ($chapter) => in_array($chapter->status, ['approved', 'passed']))
+            : null;
+
+        return view('student.theses.certificates', [
+            'thesisTitles' => $thesisTitles,
+            'approvalEligible' => $approvalEligible,
+            'approvalSheetThesis' => $approvalSheetThesis,
+        ]);
     }
 }

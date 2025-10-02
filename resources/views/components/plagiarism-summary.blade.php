@@ -7,15 +7,22 @@
     $sources = collect(data_get($report, 'sources', []));
 @endphp
 
+@php
+    $containerClass = $compact ? 'space-y-1 text-xs text-gray-600' : 'space-y-1 text-sm';
+    $scoreClass = $compact ? 'font-semibold text-gray-900 text-sm' : 'font-semibold text-gray-900';
+    $summaryTextClass = $compact ? 'text-xs text-gray-500' : 'text-xs text-gray-500';
+    $sourcesHeadingClass = $compact ? 'font-medium text-gray-700 text-xs' : 'font-medium text-gray-700';
+@endphp
+
 @if (!empty($report))
-    <div class="space-y-1 text-sm">
-        <div class="font-semibold text-gray-900">{{ $score ?? '—' }}%</div>
+    <div class="{{ $containerClass }}">
+        <div class="{{ $scoreClass }}">{{ $score ?? '—' }}%</div>
         @if ($checkedAt)
-            <div class="text-xs text-gray-500">Checked {{ $checkedAt->diffForHumans() }}</div>
+            <div class="{{ $summaryTextClass }}">Checked {{ $checkedAt->diffForHumans() }}</div>
         @endif
         @if ($sources->isNotEmpty())
-            <div class="text-xs text-gray-600">
-                <p class="font-medium text-gray-700">Top sources:</p>
+            <div class="{{ $compact ? 'text-xs text-gray-600' : 'text-xs text-gray-600' }}">
+                <p class="{{ $sourcesHeadingClass }}">Top sources:</p>
                 <ul class="list-disc ms-4 space-y-0.5">
                     @foreach ($sources as $source)
                         <li>
@@ -28,7 +35,7 @@
         @endif
     </div>
 @elseif ($checkedAt)
-    <p class="text-sm text-gray-500">Plagiarism scan completed but no details were returned.</p>
+    <p class="{{ $compact ? 'text-xs text-gray-500' : 'text-sm text-gray-500' }}">Plagiarism scan completed but no details were returned.</p>
 @else
-    <p class="text-sm text-gray-500">Plagiarism scan pending.</p>
+    <p class="{{ $compact ? 'text-xs text-gray-500' : 'text-sm text-gray-500' }}">Plagiarism scan pending.</p>
 @endif

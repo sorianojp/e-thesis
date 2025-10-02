@@ -11,6 +11,7 @@ use App\Models\PostgradThesis;
 use App\Models\Thesis;
 use App\Models\ThesisTitle;
 use App\Models\User;
+use App\Http\Controllers\Adviser\ThesisTitleReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/verify/{token}', [VerifyController::class, 'show'])->name('verify.show');
@@ -108,6 +109,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/theses/create', [ThesisTitleController::class, 'create'])->name('theses.create');
     Route::post('/theses', [ThesisTitleController::class, 'store'])->name('theses.store');
     Route::get('/theses/{thesisTitle}', [ThesisTitleController::class, 'show'])->name('theses.show');
+    Route::get('/certificates', [ThesisTitleController::class, 'certificates'])->name('theses.certificates');
 
     Route::post('/theses/{thesisTitle}/uploads', [ThesisController::class, 'store'])
         ->name('theses.upload');
@@ -134,11 +136,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('adviser')
         ->middleware(['role:adviser'])
         ->group(function () {
-            Route::get('/theses', [ThesisReviewController::class, 'index'])
+            Route::get('/theses', [ThesisTitleReviewController::class, 'index'])
                 ->name('adviser.theses.index');
 
-            Route::get('/theses/{thesis}', [ThesisReviewController::class, 'show'])
-                ->middleware('can:view,thesis')
+            Route::get('/theses/{thesisTitle}', [ThesisTitleReviewController::class, 'show'])
                 ->name('adviser.theses.show');
 
             Route::post('/theses/{thesis}/approve', [ThesisReviewController::class, 'approve'])

@@ -48,7 +48,17 @@ class ThesisPolicy
     public function downloadCertificate(User $user, Thesis $thesis): bool {
         $thesis->loadMissing('thesisTitle');
 
-        return in_array($thesis->status, ['approved', 'passed'], true)
+        $stage = request()->query('stage', 'final');
+
+        $eligible = false;
+        if ($thesis->thesisTitle) {
+            $eligible = $stage === 'title'
+                ? $thesis->thesisTitle->titleDefenseApproved()
+                : $thesis->thesisTitle->chaptersAreApproved();
+        }
+
+        return $eligible
+            && in_array($thesis->status, ['approved', 'passed'], true)
             && (
                 ($thesis->thesisTitle && (int) $thesis->thesisTitle->user_id === $user->id)
                 || $this->review($user, $thesis)

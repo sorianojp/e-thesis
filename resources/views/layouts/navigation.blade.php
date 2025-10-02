@@ -16,8 +16,12 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                     @if (auth()->user()->isStudent())
-                        <x-nav-link :href="route('theses.index')" :active="request()->routeIs('theses.*')">
+                        <x-nav-link :href="route('theses.index')"
+                            :active="request()->routeIs('theses.index') || request()->routeIs('theses.create') || request()->routeIs('theses.show')">
                             {{ __('Theses') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('theses.certificates')" :active="request()->routeIs('theses.certificates')">
+                            {{ __('My Certificates') }}
                         </x-nav-link>
                     @endif
                     @if (auth()->user()->isAdviser())
@@ -101,8 +105,12 @@
             </x-responsive-nav-link>
             {{-- Student link (only if NOT admin) --}}
             @if (auth()->user()->isStudent())
-                <x-responsive-nav-link :href="route('theses.index')" :active="request()->routeIs('theses.*')">
+                <x-responsive-nav-link :href="route('theses.index')"
+                    :active="request()->routeIs('theses.index') || request()->routeIs('theses.create') || request()->routeIs('theses.show')">
                     {{ __('Theses') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('theses.certificates')" :active="request()->routeIs('theses.certificates')">
+                    {{ __('My Certificates') }}
                 </x-responsive-nav-link>
             @endif
 

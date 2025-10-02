@@ -125,8 +125,7 @@
         Accepted and approved as partial fulfillment of the requirements for the degree of
         {{ $courseName ?? '____________' }} on
         <span style="font-weight: bold;  text-transform: uppercase;">{{ $defenseDate ?? '____________' }}</span>, with
-        a grade of <span
-            style="font-weight: bold;  text-transform: uppercase;">{{ number_format((float) ($thesis->thesisTitle->grade ?? 0), 2) }}</span>.
+        a grade of <span style="font-weight: bold;">_________________________</span>.
     </p>
 
     <p class="indent closing">Comprehensive Examination: <span style="font-weight: bold;">PASSED</span></p>
