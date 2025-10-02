@@ -26,9 +26,9 @@
                     <tbody>
                         @forelse ($theses as $t)
                             <tr class="bg-white border-b border-gray-200 hover:bg-gray-50">
-                                <td class="px-6 py-4">{{ $t->title }}</td>
-                                <td class="px-6 py-4">{{ $t->course->name }}</td>
-                                <td class="px-6 py-4">{{ $t->student->name }}</td>
+                                <td class="px-6 py-4">{{ $t->thesisTitle->title }}</td>
+                                <td class="px-6 py-4">{{ optional($t->thesisTitle->course)->name }}</td>
+                                <td class="px-6 py-4">{{ $t->thesisTitle->student->name }}</td>
                                 <td class="px-6 py-4 capitalize font-bold">
                                     <span
                                         class="text-xs font-medium px-2.5 py-0.5 rounded-lg {{ $t->status === 'pending'
@@ -45,7 +45,7 @@
                                 </td>
 
                                 <td class="px-6 py-4 text-sm text-gray-700">
-                                    @if (Auth::user()->can('review', $t) && $t->status === 'approved' && is_null($t->grade))
+                                    @if (Auth::user()->can('review', $t) && $t->status === 'approved' && is_null($t->thesisTitle->grade))
                                         <form method="POST" action="{{ route($routePrefix . '.theses.grade', $t) }}"
                                             class="flex items-center gap-2">
                                             @csrf
@@ -56,8 +56,8 @@
                                                 required>
                                             <x-secondary-button type="submit">Save</x-secondary-button>
                                         </form>
-                                    @elseif (!is_null($t->grade))
-                                        {{ number_format((float) $t->grade, 2) }}
+                                    @elseif (!is_null($t->thesisTitle->grade))
+                                        {{ number_format((float) $t->thesisTitle->grade, 2) }}
                                     @elseif ($t->status === 'approved')
                                         <span class="text-gray-500">N/A</span>
                                     @else

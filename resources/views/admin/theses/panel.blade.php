@@ -13,8 +13,9 @@
 
             <div class="bg-white shadow sm:rounded p-6">
                 <div class="mb-6">
-                    <p class="font-semibold">{{ $thesis->title }}</p>
-                    <p class="text-sm text-gray-600">{{ $thesis->student->name }} • {{ $thesis->course->name }}</p>
+                    <p class="font-semibold">{{ $thesis->thesisTitle->title }}</p>
+                    <p class="text-sm text-gray-600">{{ $thesis->thesisTitle->student->name }} •
+                        {{ optional($thesis->thesisTitle->course)->name }}</p>
                 </div>
 
                 <form method="POST" action="{{ route($routePrefix . '.theses.panel.update', $thesis) }}">
@@ -23,27 +24,27 @@
                         <div>
                             <x-input-label for="panel_chairman" :value="__('Panel Chairman')" />
                             <x-text-input id="panel_chairman" class="block mt-1 w-full" type="text" name="panel_chairman"
-                                :value="old('panel_chairman', $thesis->panel_chairman)" autofocus />
+                                :value="old('panel_chairman', $thesis->thesisTitle->panel_chairman)" autofocus />
                             <x-input-error :messages="$errors->get('panel_chairman')" class="mt-2" />
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <x-input-label for="panelist_one" :value="__('Panelist 1')" />
                                 <x-text-input id="panelist_one" class="block mt-1 w-full" type="text" name="panelist_one"
-                                    :value="old('panelist_one', $thesis->panelist_one)" />
+                                    :value="old('panelist_one', $thesis->thesisTitle->panelist_one)" />
                                 <x-input-error :messages="$errors->get('panelist_one')" class="mt-2" />
                             </div>
                             <div>
                                 <x-input-label for="panelist_two" :value="__('Panelist 2')" />
                                 <x-text-input id="panelist_two" class="block mt-1 w-full" type="text" name="panelist_two"
-                                    :value="old('panelist_two', $thesis->panelist_two)" />
+                                    :value="old('panelist_two', $thesis->thesisTitle->panelist_two)" />
                                 <x-input-error :messages="$errors->get('panelist_two')" class="mt-2" />
                             </div>
                         </div>
                         <div>
                             <x-input-label for="defense_date" :value="__('Defense Date')" />
                             <x-text-input id="defense_date" class="block mt-1 w-full" type="date" name="defense_date"
-                                :value="old('defense_date', optional($thesis->defense_date)?->format('Y-m-d'))" />
+                                :value="old('defense_date', optional($thesis->thesisTitle->defense_date)?->format('Y-m-d'))" />
                             <x-input-error :messages="$errors->get('defense_date')" class="mt-2" />
                         </div>
                     </div>

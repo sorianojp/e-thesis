@@ -78,7 +78,7 @@
     <p class="indent">
         In partial fulfillment of the requirements leading to the degree of {{ $courseName ?? '____________' }}, the
         completed
-        project study entitled, <span style="font-weight: bold">“{{ $thesis->title }}”</span>, prepared and submitted by
+        project study entitled, <span style="font-weight: bold">“{{ $thesis->thesisTitle->title }}”</span>, prepared and submitted by
         <span style="font-weight: bold;  text-transform: uppercase;">{{ $student->name }}</span>, is endorsed for
         approval
         and acceptance.
@@ -102,7 +102,7 @@
 
     <div class="center-block">
         <div class="name">
-            {{ $thesis->panel_chairman ? strtoupper($thesis->panel_chairman) : '_________________________' }}</div>
+            {{ $thesis->thesisTitle->panel_chairman ? strtoupper($thesis->thesisTitle->panel_chairman) : '_________________________' }}</div>
         <div>Chairman</div>
     </div>
 
@@ -110,12 +110,12 @@
         <tr>
             <td style="text-align: center; width: 50%;">
                 <div style="font-weight: bold;">
-                    {{ $thesis->panelist_one ? strtoupper($thesis->panelist_one) : '_________________________' }}</div>
+                    {{ $thesis->thesisTitle->panelist_one ? strtoupper($thesis->thesisTitle->panelist_one) : '_________________________' }}</div>
                 <div>Member</div>
             </td>
             <td style="text-align: center; width: 50%;">
                 <div style="font-weight: bold;">
-                    {{ $thesis->panelist_two ? strtoupper($thesis->panelist_two) : '_________________________' }}</div>
+                    {{ $thesis->thesisTitle->panelist_two ? strtoupper($thesis->thesisTitle->panelist_two) : '_________________________' }}</div>
                 <div>Member</div>
             </td>
         </tr>
@@ -126,7 +126,7 @@
         {{ $courseName ?? '____________' }} on
         <span style="font-weight: bold;  text-transform: uppercase;">{{ $defenseDate ?? '____________' }}</span>, with
         a grade of <span
-            style="font-weight: bold;  text-transform: uppercase;">{{ number_format((float) $thesis->grade, 2) }}</span>.
+            style="font-weight: bold;  text-transform: uppercase;">{{ number_format((float) ($thesis->thesisTitle->grade ?? 0), 2) }}</span>.
     </p>
 
     <p class="indent closing">Comprehensive Examination: <span style="font-weight: bold;">PASSED</span></p>

@@ -14,11 +14,11 @@
             <div class="grid grid-cols-2 gap-2">
 
                 <div class="bg-white shadow sm:rounded p-6 col-span-2">
-                    <p class="mb-1"><b>Student:</b> {{ $thesis->student->name }} ({{ $thesis->student->email }})</p>
-                    <p class="mb-1"><b>Course:</b> {{ $thesis->course->name }}</p>
-                    <p class="mb-1"><b>Title:</b> {{ $thesis->title }}</p>
+                    <p class="mb-1"><b>Student:</b> {{ $thesis->thesisTitle->student->name }} ({{ $thesis->thesisTitle->student->email }})</p>
+                    <p class="mb-1"><b>Course:</b> {{ optional($thesis->thesisTitle->course)->name }}</p>
+                    <p class="mb-1"><b>Title:</b> {{ $thesis->thesisTitle->title }}</p>
                     <p class="mb-1"><b>Adviser:</b>
-                        {{ optional($thesis->adviserUser)->name ?? ($thesis->adviser ?? 'Unassigned') }}
+                        {{ optional($thesis->thesisTitle->adviserUser)->name ?? 'Unassigned' }}
                     </p>
                     <p class="capitalize"><b>Status:</b>
                         <span
@@ -34,8 +34,8 @@
                             {{ $thesis->status }}
                         </span>
                     </p>
-                    @if (!is_null($thesis->grade))
-                        <p class="mb-1"><b>Grade:</b> {{ number_format((float) $thesis->grade, 2) }}</p>
+                    @if (!is_null($thesis->thesisTitle->grade))
+                        <p class="mb-1"><b>Grade:</b> {{ number_format((float) $thesis->thesisTitle->grade, 2) }}</p>
                     @endif
                     <hr class="my-6" />
                     <div>
@@ -63,23 +63,23 @@
                                         class="text-sm text-indigo-600 hover:underline">Edit</a>
                                 @endcan
                             </div>
-                            @if ($thesis->panel_chairman || $thesis->panelist_one || $thesis->panelist_two || $thesis->defense_date)
+                            @if ($thesis->thesisTitle->panel_chairman || $thesis->thesisTitle->panelist_one || $thesis->thesisTitle->panelist_two || $thesis->thesisTitle->defense_date)
                                 <dl class="mt-2 space-y-1 text-sm text-gray-700">
-                                    @if ($thesis->panel_chairman)
-                                        <div><span class="font-semibold">Chairman:</span> {{ $thesis->panel_chairman }}
+                                    @if ($thesis->thesisTitle->panel_chairman)
+                                        <div><span class="font-semibold">Chairman:</span> {{ $thesis->thesisTitle->panel_chairman }}
                                         </div>
                                     @endif
-                                    @if ($thesis->panelist_one)
-                                        <div><span class="font-semibold">Panelist 1:</span> {{ $thesis->panelist_one }}
+                                    @if ($thesis->thesisTitle->panelist_one)
+                                        <div><span class="font-semibold">Panelist 1:</span> {{ $thesis->thesisTitle->panelist_one }}
                                         </div>
                                     @endif
-                                    @if ($thesis->panelist_two)
-                                        <div><span class="font-semibold">Panelist 2:</span> {{ $thesis->panelist_two }}
+                                    @if ($thesis->thesisTitle->panelist_two)
+                                        <div><span class="font-semibold">Panelist 2:</span> {{ $thesis->thesisTitle->panelist_two }}
                                         </div>
                                     @endif
-                                    @if ($thesis->defense_date)
+                                    @if ($thesis->thesisTitle->defense_date)
                                         <div><span class="font-semibold">Defense Date:</span>
-                                            {{ $thesis->defense_date->format('F d, Y') }}
+                                            {{ $thesis->thesisTitle->defense_date->format('F d, Y') }}
                                         </div>
                                     @endif
                                 </dl>
@@ -99,7 +99,7 @@
                             <div class="mb-3">
                                 <label for="grade" class="block text-sm font-medium text-gray-700">Grade</label>
                                 <input type="number" step="0.01" min="0" max="100" name="grade"
-                                    id="grade" value="{{ old('grade', $thesis->grade) }}"
+                                    id="grade" value="{{ old('grade', $thesis->thesisTitle->grade) }}"
                                     class="mt-1 w-full rounded border-gray-300" required>
                                 @error('grade')
                                     <p class="text-sm text-red-600 mt-1">{{ $message }}</p>

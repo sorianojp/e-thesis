@@ -2,12 +2,14 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ThesisController;
+use App\Http\Controllers\ThesisTitleController;
 use App\Http\Controllers\Admin\ThesisReviewController;
 use App\Http\Controllers\Admin\PostgradThesisController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\VerifyController;
 use App\Models\PostgradThesis;
 use App\Models\Thesis;
+use App\Models\ThesisTitle;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -24,7 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         if ($user->isStudent()) {
             $statusCounts = Thesis::query()
                 ->selectRaw('status, COUNT(*) as count')
-                ->where('user_id', $user->id)
+                ->whereHas('thesisTitle', fn ($q) => $q->where('user_id', $user->id))
                 ->groupBy('status')
                 ->pluck('count', 'status')
                 ->map(fn ($count) => (int) $count);
@@ -37,7 +39,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 'passed' => $statusCounts['passed'] ?? 0,
             ];
         } elseif ($user->isAdviser()) {
-            $adviserTheses = Thesis::query()->where('adviser_id', $user->id);
+            $adviserTheses = Thesis::query()
+                ->whereHas('thesisTitle', fn ($q) => $q->where('adviser_id', $user->id));
 
             $statusCounts = (clone $adviserTheses)
                 ->selectRaw('status, COUNT(*) as count')
@@ -47,7 +50,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
             $adviserStats = [
                 'theses' => (clone $adviserTheses)->count(),
-                'students' => (clone $adviserTheses)->distinct('user_id')->count('user_id'),
+                'students' => ThesisTitle::query()
+                    ->where('adviser_id', $user->id)
+                    ->distinct('user_id')
+                    ->count('user_id'),
                 'pending' => $statusCounts['pending'] ?? 0,
                 'approved' => $statusCounts['approved'] ?? 0,
                 'rejected' => $statusCounts['rejected'] ?? 0,
@@ -98,9 +104,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     |--------------------------------------------------------------------------
     | Uses implicit model binding {thesis} -> App\Models\Thesis
     */
-    Route::get('/theses', [ThesisController::class, 'index'])->name('theses.index');
-    Route::get('/theses/create', [ThesisController::class, 'create'])->name('theses.create');
-    Route::post('/theses', [ThesisController::class, 'store'])->name('theses.store');
+    Route::get('/theses', [ThesisTitleController::class, 'index'])->name('theses.index');
+    Route::get('/theses/create', [ThesisTitleController::class, 'create'])->name('theses.create');
+    Route::post('/theses', [ThesisTitleController::class, 'store'])->name('theses.store');
+    Route::get('/theses/{thesisTitle}', [ThesisTitleController::class, 'show'])->name('theses.show');
+
+    Route::post('/theses/{thesisTitle}/uploads', [ThesisController::class, 'store'])
+        ->name('theses.upload');
 
     // Secure file access (owner OR admin)
     Route::get('/theses/{thesis}/download/{type}', [ThesisController::class, 'download'])

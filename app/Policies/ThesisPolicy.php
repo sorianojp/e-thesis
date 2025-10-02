@@ -13,15 +13,22 @@ class ThesisPolicy
             return true;
         }
 
+        $thesis->loadMissing('thesisTitle');
+        $thesisTitle = $thesis->thesisTitle;
+
         if ($user->isAdviser()) {
-            return (int) $thesis->adviser_id === $user->id;
+            return $thesisTitle && (int) $thesisTitle->adviser_id === $user->id;
         }
 
-        return $thesis->user_id === $user->id;
+        return $thesisTitle && (int) $thesisTitle->user_id === $user->id;
     }
 
     public function update(User $user, Thesis $thesis): bool {
-        return $thesis->user_id === $user->id && $thesis->status === 'pending';
+        $thesis->loadMissing('thesisTitle');
+
+        return $thesis->status === 'pending'
+            && $thesis->thesisTitle
+            && (int) $thesis->thesisTitle->user_id === $user->id;
     }
 
     public function admin(User $user): bool
@@ -31,13 +38,19 @@ class ThesisPolicy
 
     public function review(User $user, Thesis $thesis): bool
     {
-        return $user->isAdviser() && (int) $thesis->adviser_id === $user->id;
+        $thesis->loadMissing('thesisTitle');
+
+        return $user->isAdviser()
+            && $thesis->thesisTitle
+            && (int) $thesis->thesisTitle->adviser_id === $user->id;
     }
 
     public function downloadCertificate(User $user, Thesis $thesis): bool {
+        $thesis->loadMissing('thesisTitle');
+
         return in_array($thesis->status, ['approved', 'passed'], true)
             && (
-                $thesis->user_id === $user->id
+                ($thesis->thesisTitle && (int) $thesis->thesisTitle->user_id === $user->id)
                 || $this->review($user, $thesis)
                 || $user->isAdmin()
             );

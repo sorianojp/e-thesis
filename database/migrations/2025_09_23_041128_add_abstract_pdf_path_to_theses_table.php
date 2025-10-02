@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('theses', function (Blueprint $table) {
-            $table->string('abstract_pdf_path')->after('adviser');
+            $table->string('abstract_pdf_path')->after('title');
         });
     }
 

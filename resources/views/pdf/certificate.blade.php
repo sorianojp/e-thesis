@@ -89,36 +89,38 @@
         <img src="{{ public_path('images/logo.png') }}" alt="Watermark Logo">
     </div>
 
+    @php($adviserName = optional($thesis->thesisTitle->adviserUser)->name)
+
     <div class="title">CERTIFICATE OF ELIGIBILITY TO DEFEND</div>
     <p class="mt" style="font-size:10pt;">
         Verification code: <strong>{{ strtoupper($visibleCode) }}</strong>
     </p>
     <div class="box">
-        <p>This is to certify that <strong>{{ $student->name }}</strong> ({{ $thesis->course->name }})
+        <p>This is to certify that <strong>{{ $student->name }}</strong> ({{ optional($thesis->thesisTitle->course)->name }})
             has complied with the e-thesis submission requirements (complete manuscript and endorsement letter) for the
             thesis entitled:</p>
 
-        <p class="mt" style="font-style:italic; font-weight:bold;">“{{ $thesis->title }}”</p>
+        <p class="mt" style="font-style:italic; font-weight:bold;">“{{ $thesis->thesisTitle->title }}”</p>
 
-        @if ($thesis->adviser)
-            <p class="mt">Adviser: <strong>{{ $thesis->adviser }}</strong></p>
+        @if ($adviserName)
+            <p class="mt">Adviser: <strong>{{ $adviserName }}</strong></p>
         @endif
 
-        @if ($thesis->panel_chairman || $thesis->panelist_one || $thesis->panelist_two)
+        @if ($thesis->thesisTitle->panel_chairman || $thesis->thesisTitle->panelist_one || $thesis->thesisTitle->panelist_two)
             <p class="mt"><strong>Panel Members</strong></p>
-            @if ($thesis->panel_chairman)
-                <p>Chairman: <strong>{{ $thesis->panel_chairman }}</strong></p>
+            @if ($thesis->thesisTitle->panel_chairman)
+                <p>Chairman: <strong>{{ $thesis->thesisTitle->panel_chairman }}</strong></p>
             @endif
-            @if ($thesis->panelist_one)
-                <p>Panelist 1: <strong>{{ $thesis->panelist_one }}</strong></p>
+            @if ($thesis->thesisTitle->panelist_one)
+                <p>Panelist 1: <strong>{{ $thesis->thesisTitle->panelist_one }}</strong></p>
             @endif
-            @if ($thesis->panelist_two)
-                <p>Panelist 2: <strong>{{ $thesis->panelist_two }}</strong></p>
+            @if ($thesis->thesisTitle->panelist_two)
+                <p>Panelist 2: <strong>{{ $thesis->thesisTitle->panelist_two }}</strong></p>
             @endif
         @endif
 
-        @if ($thesis->defense_date)
-            <p class="mt">Scheduled Defense: <strong>{{ $thesis->defense_date->format('F d, Y') }}</strong></p>
+        @if ($thesis->thesisTitle->defense_date)
+            <p class="mt">Scheduled Defense: <strong>{{ $thesis->thesisTitle->defense_date->format('F d, Y') }}</strong></p>
         @endif
 
         <p class="mt">Accordingly, the student is <strong>ELIGIBLE TO DEFEND</strong> as of {{ $approvedAt }}.</p>

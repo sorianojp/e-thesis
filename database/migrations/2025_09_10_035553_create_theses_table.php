@@ -18,7 +18,6 @@ return new class extends Migration
             $table->foreignId('adviser_id')->nullable()->constrained('users')->nullOnDelete();
             $table->integer('version');
             $table->string('title');
-            $table->string('adviser');
             $table->string('thesis_pdf_path'); // storage path
             $table->string('endorsement_pdf_path'); // storage path
             $table->enum('status', ['pending', 'approved', 'rejected', 'passed'])->default('pending');

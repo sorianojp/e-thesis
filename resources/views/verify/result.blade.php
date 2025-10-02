@@ -21,8 +21,8 @@
             <div class="bg-white rounded-2xl shadow p-6 ring-1 ring-gray-200">
                 @if ($status === 'valid')
                     @php
-                        $verifyUrl = route('verify.show', ['token' => $thesis->verification_token]);
-                        $visibleCode = strtoupper(substr(hash('sha256', $thesis->verification_token), 0, 10));
+                        $verifyUrl = route('verify.show', ['token' => $thesisTitle->verification_token]);
+                        $visibleCode = strtoupper(substr(hash('sha256', $thesisTitle->verification_token), 0, 10));
                     @endphp
                     <div class="flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-3">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 mt-0.5"
@@ -51,15 +51,15 @@
                     <dl class="mt-6 divide-y divide-gray-100 border rounded-xl">
                         <div class="grid grid-cols-3 gap-4 p-4">
                             <dt class="text-gray-500">Student</dt>
-                            <dd class="col-span-2 text-gray-900">{{ $thesis->student->name }}</dd>
+                            <dd class="col-span-2 text-gray-900">{{ $thesisTitle->student->name }}</dd>
                         </div>
                         <div class="grid grid-cols-3 gap-4 p-4">
                             <dt class="text-gray-500">Course</dt>
-                            <dd class="col-span-2 text-gray-900">{{ $thesis->course->name }}</dd>
+                            <dd class="col-span-2 text-gray-900">{{ optional($thesisTitle->course)->name }}</dd>
                         </div>
                         <div class="grid grid-cols-3 gap-4 p-4">
                             <dt class="text-gray-500">Title</dt>
-                            <dd class="col-span-2 text-gray-900">{{ $thesis->title }}</dd>
+                            <dd class="col-span-2 text-gray-900">{{ $thesisTitle->title }}</dd>
                         </div>
                         <div class="grid grid-cols-3 gap-4 p-4">
                             <dt class="text-gray-500">Approved on</dt>
@@ -102,8 +102,8 @@
                         (UTC{{ now()->format('P') }})</p>
                 @elseif ($status === 'not_approved')
                     @php
-                        $verifyUrl = route('verify.show', ['token' => $thesis->verification_token]);
-                        $visibleCode = strtoupper(substr(hash('sha256', $thesis->verification_token), 0, 10));
+                        $verifyUrl = route('verify.show', ['token' => $thesisTitle->verification_token]);
+                        $visibleCode = strtoupper(substr(hash('sha256', $thesisTitle->verification_token), 0, 10));
                     @endphp
 
                     <div class="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
@@ -121,15 +121,15 @@
                     <dl class="mt-6 divide-y divide-gray-100 border rounded-xl">
                         <div class="grid grid-cols-3 gap-4 p-4">
                             <dt class="text-gray-500">Student</dt>
-                            <dd class="col-span-2 text-gray-900">{{ $thesis->student->name }}</dd>
+                            <dd class="col-span-2 text-gray-900">{{ $thesisTitle->student->name }}</dd>
                         </div>
                         <div class="grid grid-cols-3 gap-4 p-4">
                             <dt class="text-gray-500">Course</dt>
-                            <dd class="col-span-2 text-gray-900">{{ $thesis->course->name }}</dd>
+                            <dd class="col-span-2 text-gray-900">{{ optional($thesisTitle->course)->name }}</dd>
                         </div>
                         <div class="grid grid-cols-3 gap-4 p-4">
                             <dt class="text-gray-500">Title</dt>
-                            <dd class="col-span-2 text-gray-900">{{ $thesis->title }}</dd>
+                            <dd class="col-span-2 text-gray-900">{{ $thesisTitle->title }}</dd>
                         </div>
                     </dl>
 
