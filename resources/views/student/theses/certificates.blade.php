@@ -11,19 +11,22 @@
 
             <div class="bg-white shadow sm:rounded p-6">
                 <h2 class="text-lg font-semibold text-gray-900">Certificate to Defend</h2>
-                <p class="text-sm text-gray-600 mt-1">Download certificates for any stage with fully approved chapters.</p>
+                <p class="text-sm text-gray-600 mt-1">Download certificates for any stage with fully approved chapters.
+                </p>
             </div>
 
             @forelse ($thesisTitles as $title)
                 @php($titleDefenseReady = $title->titleDefenseApproved())
                 @php($finalDefenseReady = $title->chaptersAreApproved())
-                @php($titleDefenseChapter = $title->theses->first(fn ($chap) => in_array($chap->chapter_label, \App\Models\ThesisTitle::titleDefenseChapters(), true) && in_array($chap->status, ['approved', 'passed'], true)))
-                @php($finalDefenseChapter = $title->theses->first(fn ($chap) => in_array($chap->status, ['approved', 'passed'], true)))
-                <div class="bg-white shadow rounded-lg p-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                @php($titleDefenseChapter = $title->theses->first(fn($chap) => in_array($chap->chapter_label, \App\Models\ThesisTitle::titleDefenseChapters(), true) && in_array($chap->status, ['approved', 'passed'], true)))
+                @php($finalDefenseChapter = $title->theses->first(fn($chap) => in_array($chap->status, ['approved', 'passed'], true)))
+                <div
+                    class="bg-white shadow rounded-lg p-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900">{{ $title->title }}</h3>
                         <p class="text-sm text-gray-600">{{ optional($title->course)->name }}</p>
-                        <p class="text-xs text-gray-500 mt-1">Approved chapters: {{ $title->approvedChaptersCount() }}</p>
+                        <p class="text-xs text-gray-500 mt-1">Approved chapters: {{ $title->approvedChaptersCount() }}
+                        </p>
                     </div>
 
                     <div class="flex flex-wrap gap-2">
@@ -54,13 +57,14 @@
 
             <div class="bg-white shadow sm:rounded p-6 space-y-3">
                 <h2 class="text-lg font-semibold text-gray-900">Approval Sheet</h2>
-                <p class="text-sm text-gray-600">The approval sheet becomes available once five chapters (1-5) are approved
+                <p class="text-sm text-gray-600">The approval sheet becomes available once five chapters (1-5) are
+                    approved
                     across your Title Defense and Final Defense.</p>
 
                 @if ($approvalEligible && $approvalSheetThesis)
                     <a href="{{ route('theses.approval', $approvalSheetThesis) }}"
                         class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                        Download Approval Sheet
+                        Approval Sheet
                     </a>
                 @else
                     <span class="text-sm text-gray-500">Approval sheet not yet available.</span>

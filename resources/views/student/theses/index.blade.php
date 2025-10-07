@@ -42,6 +42,57 @@
                             <p class="text-sm text-gray-500 mt-1">
                                 Submissions: {{ $title->theses_count }}
                             </p>
+                            @php
+                                $titleDefenseReady = $title->titleDefenseApproved();
+                                $finalDefenseReady = $title->chaptersAreApproved();
+                            @endphp
+                            <div class="mt-3 flex flex-wrap gap-2">
+                                <span
+                                    class="inline-flex items-center gap-2 rounded border px-3 py-1 text-xs font-semibold {{ $titleDefenseReady ? 'border-green-200 bg-green-50 text-green-700' : 'border-gray-200 bg-gray-50 text-gray-600' }}">
+                                    @if ($titleDefenseReady)
+                                        <svg class="h-4 w-4 text-green-500" xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                            aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M9 12.75 11.25 15 15 9.75" />
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z" />
+                                        </svg>
+                                    @else
+                                        <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                            aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l3 3" />
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
+                                        </svg>
+                                    @endif
+                                    Title Defense: {{ $titleDefenseReady ? 'Ready' : 'Pending' }}
+                                </span>
+                                <span
+                                    class="inline-flex items-center gap-2 rounded border px-3 py-1 text-xs font-semibold {{ $finalDefenseReady ? 'border-green-200 bg-green-50 text-green-700' : 'border-gray-200 bg-gray-50 text-gray-600' }}">
+                                    @if ($finalDefenseReady)
+                                        <svg class="h-4 w-4 text-green-500" xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                            aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="m9 12.75 1.5 1.5 3-3" />
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M12 21.75c-4.97-1.35-7.5-4.05-7.5-8.156V5.663L12 2.25l7.5 3.413v7.931c0 4.106-2.53 6.806-7.5 8.156z" />
+                                        </svg>
+                                    @else
+                                        <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                            aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M4.5 20.25a8.25 8.25 0 1 1 15 0" />
+                                        </svg>
+                                    @endif
+                                    Final Defense: {{ $finalDefenseReady ? 'Ready' : 'Pending' }}
+                                </span>
+                            </div>
                             @if ($latestChapters->isNotEmpty())
                                 <div class="mt-3">
                                     <p class="text-sm font-medium text-gray-700">Chapters</p>

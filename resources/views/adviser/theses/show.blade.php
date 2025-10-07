@@ -29,14 +29,30 @@
 
                 <div class="mt-4 flex flex-wrap gap-3 text-sm">
                     @if ($thesisTitle->abstract_pdf_path && $chapters->isNotEmpty())
-                        <a class="text-indigo-600 hover:underline"
-                            href="{{ route('theses.download', [$chapters->first(), 'abstract']) }}">Download Abstract
-                            PDF</a>
+                        <a class="inline-flex items-center gap-2 text-indigo-600 hover:underline"
+                            href="{{ route('theses.download', [$chapters->first(), 'abstract']) }}">
+                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 12 12 16.5 16.5 12" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V3" />
+                            </svg>
+                            Abstract
+                        </a>
                     @endif
                     @if ($thesisTitle->endorsement_pdf_path && $chapters->isNotEmpty())
-                        <a class="text-indigo-600 hover:underline"
-                            href="{{ route('theses.download', [$chapters->first(), 'endorsement']) }}">Download
-                            Endorsement Letter</a>
+                        <a class="inline-flex items-center gap-2 text-indigo-600 hover:underline"
+                            href="{{ route('theses.download', [$chapters->first(), 'endorsement']) }}">
+                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 12 12 16.5 16.5 12" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V3" />
+                            </svg>
+                            Endorsement Letter
+                        </a>
                     @endif
                 </div>
             </div>
@@ -44,7 +60,16 @@
             <div class="bg-white shadow sm:rounded p-6">
                 <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
                     <div>
-                        <h3 class="text-lg font-semibold text-gray-900">Panel Details</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 inline-flex items-center gap-2">
+                            <svg class="h-6 w-6 text-indigo-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M4.5 20.25a8.25 8.25 0 1 1 15 0" />
+                            </svg>
+                            Panel Details
+                        </h3>
                         <p class="text-sm text-gray-600 mt-1">
                             Panel assignment unlocks once Chapters 1–3 are approved for Title Defense.
                         </p>
@@ -83,7 +108,14 @@
             </div>
 
             <div class="bg-white shadow sm:rounded p-6">
-                <h3 class="text-lg font-semibold text-gray-900">Chapter Reviews</h3>
+                <h3 class="text-lg font-semibold text-gray-900 inline-flex items-center gap-2">
+                    <svg class="h-6 w-6 text-indigo-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12h6m-6 4h6m1.5 2.25H8.25A2.25 2.25 0 0 1 6 16.5V5.25A2.25 2.25 0 0 1 8.25 3h5.379a2.25 2.25 0 0 1 1.591.659l3.121 3.121a2.25 2.25 0 0 1 .659 1.591V16.5a2.25 2.25 0 0 1-2.25 2.25z" />
+                    </svg>
+                    Chapter Reviews
+                </h3>
                 <p class="text-sm text-gray-600 mt-1">Approve or reject each uploaded chapter. Rejections will prompt
                     the
                     student to re-upload and set the status back to pending.</p>
@@ -124,9 +156,19 @@
                                 </div>
                                 <div class="mt-3 md:mt-0 space-x-3">
                                     @if ($chapter && $chapter->thesis_pdf_path)
-                                        <a class="text-indigo-600 hover:underline text-sm"
-                                            href="{{ route('theses.download', [$chapter, 'thesis']) }}">Download
-                                            Manuscript</a>
+                                        <a class="inline-flex items-center gap-2 text-indigo-600 hover:underline text-sm"
+                                            href="{{ route('theses.download', [$chapter, 'thesis']) }}">
+                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                fill="none" stroke="currentColor" stroke-width="1.5"
+                                                aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5" />
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M7.5 12 12 16.5 16.5 12" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V3" />
+                                            </svg>
+                                            Manuscript
+                                        </a>
                                     @endif
                                 </div>
                             </div>
@@ -139,13 +181,34 @@
                             <div class="mt-4">
                                 @if ($chapter->status === 'pending')
                                     <div class="flex flex-wrap gap-2">
-                                        <form method="POST" action="{{ route('adviser.theses.approve', $chapter) }}">
+                                        <form method="POST"
+                                            action="{{ route('adviser.theses.approve', $chapter) }}">
                                             @csrf
-                                            <x-primary-button type="submit">Approve</x-primary-button>
+                                            <x-primary-button type="submit">
+                                                <span class="inline-flex items-center gap-2">
+                                                    <svg class="h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="1.5" aria-hidden="true">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M4.5 12.75l6 6 9-13.5" />
+                                                    </svg>
+                                                    Approve
+                                                </span>
+                                            </x-primary-button>
                                         </form>
                                         <form method="POST" action="{{ route('adviser.theses.reject', $chapter) }}">
                                             @csrf
-                                            <x-danger-button type="submit">Reject</x-danger-button>
+                                            <x-danger-button type="submit">
+                                                <span class="inline-flex items-center gap-2">
+                                                    <svg class="h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="1.5" aria-hidden="true">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M6 18 18 6M6 6l12 12" />
+                                                    </svg>
+                                                    Reject
+                                                </span>
+                                            </x-danger-button>
                                         </form>
                                     </div>
                                 @else
@@ -159,25 +222,6 @@
                 </div>
             </div>
 
-            @php($certificateReady = $thesisTitle->chaptersAreApproved())
-
-            <div class="bg-white shadow sm:rounded p-6">
-                <h3 class="text-lg font-semibold text-gray-900">Certificates & Documents</h3>
-                <p class="text-sm text-gray-600 mt-1">
-                    Certificates are shown on the student's <strong>My Certificates</strong> page once available.
-                </p>
-                <div class="mt-3 flex flex-wrap gap-2 text-sm text-gray-600">
-                    <span>
-                        Title Defense: {{ $titleDefenseReady ? 'Ready' : 'Pending' }} • Final Defense:
-                        {{ $certificateReady ? 'Ready' : 'Pending' }}
-                    </span>
-
-                    @if ($approvalEligible && $approvalSheetThesis)
-                        <a class="text-indigo-600 hover:underline text-sm inline-flex items-center"
-                            href="{{ route('theses.approval', $approvalSheetThesis) }}">Download Approval Sheet</a>
-                    @endif
-                </div>
-            </div>
         </div>
     </div>
 </x-app-layout>
