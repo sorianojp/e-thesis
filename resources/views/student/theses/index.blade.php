@@ -19,35 +19,18 @@
             <div class="space-y-4">
                 @forelse ($thesisTitles as $title)
                     @php
-                        $latest = $title->theses->sortByDesc('updated_at')->first();
-                        $requiredCount = count($title->requiredChapters());
-                        $approvedCount = $title->theses->whereIn('status', ['approved', 'passed'])->unique('chapter_label')->count();
-                        $hasRejected = $title->theses->contains(fn ($chapter) => $chapter->status === 'rejected');
-                        $titleDefenseReady = $title->titleDefenseApproved();
-                        $finalDefenseReady = $title->chaptersAreApproved();
+                        $latestChapters = $title->theses
+                            ->sortByDesc('updated_at')
+                            ->unique('chapter_label')
+                            ->sortBy('chapter_label')
+                            ->values();
 
-                        if ($hasRejected) {
-                            $statusTuple = ['Rejected', 'bg-red-100 text-red-800'];
-                        } elseif ($finalDefenseReady) {
-                            $statusTuple = ['Final Defense Ready', 'bg-blue-100 text-blue-800'];
-                        } elseif ($titleDefenseReady) {
-                            $statusTuple = ['Title Defense Ready', 'bg-green-100 text-green-800'];
-                        } elseif ($latest) {
-                            $statusTuple = [
-                                ucfirst($latest->status),
-                                match ($latest->status) {
-                                    'pending' => 'bg-yellow-100 text-yellow-800',
-                                    'approved' => 'bg-green-100 text-green-800',
-                                    'rejected' => 'bg-red-100 text-red-800',
-                                    'passed' => 'bg-blue-100 text-blue-800',
-                                    default => 'bg-gray-100 text-gray-700',
-                                },
-                            ];
-                        } else {
-                            $statusTuple = ['No submissions yet', 'bg-gray-100 text-gray-700'];
-                        }
-
-                        [$latestStatus, $statusClass] = $statusTuple;
+                        $statusColors = [
+                            'pending' => 'bg-yellow-100 text-yellow-800',
+                            'approved' => 'bg-green-100 text-green-800',
+                            'rejected' => 'bg-red-100 text-red-800',
+                            'passed' => 'bg-blue-100 text-blue-800',
+                        ];
                     @endphp
                     <div class="bg-white shadow rounded-lg p-6 flex flex-col md:flex-row md:items-center md:justify-between">
                         <div>
@@ -59,17 +42,21 @@
                             <p class="text-sm text-gray-500 mt-1">
                                 Submissions: {{ $title->theses_count }}
                             </p>
-                            @if ($requiredCount)
-                                <p class="text-sm text-gray-500 mt-1">
-                                    Chapters approved: {{ $approvedCount }} / {{ $requiredCount }}
-                                </p>
+                            @if ($latestChapters->isNotEmpty())
+                                <div class="mt-3">
+                                    <p class="text-sm font-medium text-gray-700">Chapters</p>
+                                    <div class="mt-2 flex flex-wrap gap-2">
+                                        @foreach ($latestChapters as $chapter)
+                                            <span class="inline-flex items-center gap-2 rounded border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-700">
+                                                <span>{{ \Illuminate\Support\Str::of($chapter->chapter_label ?? 'Submission')->replace('_', ' ')->replace('-', ' ')->title() }}</span>
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold {{ $statusColors[$chapter->status] ?? 'bg-gray-100 text-gray-700' }}">
+                                                    {{ ucfirst($chapter->status) }}
+                                                </span>
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                </div>
                             @endif
-                            <p class="text-sm text-gray-500 mt-1 flex items-center gap-2">
-                                <span>Latest Status:</span>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium {{ $statusClass }}">
-                                    {{ $latestStatus }}
-                                </span>
-                            </p>
                         </div>
                         <div class="mt-4 md:mt-0">
                             <a href="{{ route('theses.show', $title) }}" class="inline-flex items-center px-4 py-2 text-sm

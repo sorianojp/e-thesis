@@ -27,7 +27,10 @@
                     @foreach ($sources as $source)
                         <li>
                             <span class="font-semibold">{{ data_get($source, 'score', '—') }}%</span>
-                            <span>{{ data_get($source, 'title') ?? (data_get($source, 'url') ?? 'Unlabeled source') }}</span>
+                            <a href="{{ data_get($source, 'url') }}" class="text-indigo-600 hover:underline"
+                                target="_blank" rel="noopener noreferrer">
+                                {{ data_get($source, 'title') ?? 'Unlabeled source' }}
+                            </a>
                         </li>
                     @endforeach
                 </ul>
@@ -35,7 +38,8 @@
         @endif
     </div>
 @elseif ($checkedAt)
-    <p class="{{ $compact ? 'text-xs text-gray-500' : 'text-sm text-gray-500' }}">Plagiarism scan completed but no details were returned.</p>
+    <p class="{{ $compact ? 'text-xs text-gray-500' : 'text-sm text-gray-500' }}">Plagiarism scan completed but no
+        details were returned.</p>
 @else
     <p class="{{ $compact ? 'text-xs text-gray-500' : 'text-sm text-gray-500' }}">Plagiarism scan pending.</p>
 @endif

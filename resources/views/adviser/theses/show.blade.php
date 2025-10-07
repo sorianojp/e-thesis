@@ -88,7 +88,7 @@
                     the
                     student to re-upload and set the status back to pending.</p>
 
-                <div class="mt-4 space-y-6">
+                <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     @foreach ($requiredChapters as $chapterLabel)
                         @php($chapter = $chapters->get($chapterLabel))
                         <div class="border border-gray-200 rounded-lg p-4">
@@ -126,7 +126,7 @@
                                     @if ($chapter && $chapter->thesis_pdf_path)
                                         <a class="text-indigo-600 hover:underline text-sm"
                                             href="{{ route('theses.download', [$chapter, 'thesis']) }}">Download
-                                            manuscript</a>
+                                            Manuscript</a>
                                     @endif
                                 </div>
                             </div>
@@ -136,15 +136,23 @@
                                 @continue
                             @endif
 
-                            <div class="mt-4 flex flex-wrap gap-2">
-                                <form method="POST" action="{{ route('adviser.theses.approve', $chapter) }}">
-                                    @csrf
-                                    <x-primary-button type="submit">Approve</x-primary-button>
-                                </form>
-                                <form method="POST" action="{{ route('adviser.theses.reject', $chapter) }}">
-                                    @csrf
-                                    <x-danger-button type="submit">Reject</x-danger-button>
-                                </form>
+                            <div class="mt-4">
+                                @if ($chapter->status === 'pending')
+                                    <div class="flex flex-wrap gap-2">
+                                        <form method="POST" action="{{ route('adviser.theses.approve', $chapter) }}">
+                                            @csrf
+                                            <x-primary-button type="submit">Approve</x-primary-button>
+                                        </form>
+                                        <form method="POST" action="{{ route('adviser.theses.reject', $chapter) }}">
+                                            @csrf
+                                            <x-danger-button type="submit">Reject</x-danger-button>
+                                        </form>
+                                    </div>
+                                @else
+                                    <p class="text-sm text-gray-500">
+                                        This chapter is {{ $chapter->status }}.
+                                    </p>
+                                @endif
                             </div>
                         </div>
                     @endforeach
