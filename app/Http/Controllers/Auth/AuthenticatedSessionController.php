@@ -63,10 +63,20 @@ class AuthenticatedSessionController extends Controller
         $step = $response->json();
 
         // (Adjust these keys to match the exact STEP payload)
-        $stepUser  = data_get($step, 'user', []);
-        $stepEmail = data_get($stepUser, 'email');
-        $stepName  = data_get($stepUser, 'full_name') ?: data_get($stepUser, 'name');
-        $stepToken = data_get($step, 'token');
+        $stepUser   = data_get($step, 'user', []);
+        $stepEmail  = data_get($stepUser, 'email');
+        $stepName   = data_get($stepUser, 'full_name') ?: data_get($stepUser, 'name');
+        $stepToken  = data_get($step, 'token');
+        $stepRoles  = collect(data_get($stepUser, 'roles', []))
+            ->map(function ($role) {
+                if (is_string($role)) {
+                    return $role;
+                }
+
+                return data_get($role, 'name');
+            })
+            ->filter()
+            ->map(fn ($role) => Str::lower($role));
 
         if (!$stepEmail || !$stepToken) {
             // Defensive: malformed response
@@ -75,16 +85,27 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
+        $normalizedEmail = Str::lower($stepEmail);
+        $shouldBeAdviser = $stepRoles->contains('teacher');
+
+        if (Str::contains($normalizedEmail, '.faculty')) {
+            $shouldBeAdviser = true;
+        } elseif (Str::contains($normalizedEmail, '.stud')) {
+            $shouldBeAdviser = false;
+        }
+
         // Create/update local user
-        $user = User::updateOrCreate(
-            ['email' => $stepEmail],
-            [
-                'name'       => $stepName ?: $stepEmail,
-                // Never store plaintext; use a random hashed password since STEP is the source of truth
-                'password'   => Hash::make(Str::password(32)),
-                'step_token' => $stepToken, // Stored encrypted (see casts in User model below)
-            ]
-        );
+        $user = User::firstOrNew(['email' => $stepEmail]);
+        $user->name = $stepName ?: $stepEmail;
+        // Never store plaintext; use a random hashed password since STEP is the source of truth
+        $user->password = Hash::make(Str::password(32));
+        $user->step_token = $stepToken; // Stored encrypted (see casts in User model)
+
+        if (!$user->exists || !$user->isAdmin()) {
+            $user->role = $shouldBeAdviser ? User::ROLE_ADVISER : User::ROLE_STUDENT;
+        }
+
+        $user->save();
 
         // Optionally stash token in session too (short-lived use)
         session(['step_token' => $stepToken]);

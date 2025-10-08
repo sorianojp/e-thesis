@@ -8,10 +8,10 @@
                 <div class="mb-4 rounded bg-green-50 text-green-900 px-4 py-2">{{ session('status') }}</div>
             @endif
 
-            <div class="flex items-center justify-end my-2">
+            <div class="flex items-center justify-end">
                 <a href="{{ route('theses.create') }}">
                     <x-primary-button type="button">
-                        Submit a Thesis
+                        + Title
                     </x-primary-button>
                 </a>
             </div>
@@ -32,7 +32,8 @@
                             'passed' => 'bg-blue-100 text-blue-800',
                         ];
                     @endphp
-                    <div class="bg-white shadow rounded-lg p-6 flex flex-col md:flex-row md:items-center md:justify-between">
+                    <div
+                        class="bg-white shadow rounded-lg p-6 flex flex-col md:flex-row md:items-center md:justify-between">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900">{{ $title->title }}</h3>
                             <p class="text-sm text-gray-600 mt-1">{{ optional($title->course)->name }}</p>
@@ -98,9 +99,11 @@
                                     <p class="text-sm font-medium text-gray-700">Chapters</p>
                                     <div class="mt-2 flex flex-wrap gap-2">
                                         @foreach ($latestChapters as $chapter)
-                                            <span class="inline-flex items-center gap-2 rounded border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-700">
+                                            <span
+                                                class="inline-flex items-center gap-2 rounded border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-700">
                                                 <span>{{ \Illuminate\Support\Str::of($chapter->chapter_label ?? 'Submission')->replace('_', ' ')->replace('-', ' ')->title() }}</span>
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold {{ $statusColors[$chapter->status] ?? 'bg-gray-100 text-gray-700' }}">
+                                                <span
+                                                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold {{ $statusColors[$chapter->status] ?? 'bg-gray-100 text-gray-700' }}">
                                                     {{ ucfirst($chapter->status) }}
                                                 </span>
                                             </span>
@@ -110,7 +113,8 @@
                             @endif
                         </div>
                         <div class="mt-4 md:mt-0">
-                            <a href="{{ route('theses.show', $title) }}" class="inline-flex items-center px-4 py-2 text-sm
+                            <a href="{{ route('theses.show', $title) }}"
+                                class="inline-flex items-center px-4 py-2 text-sm
                                 font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md focus:outline-none
                                 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                 View Details
