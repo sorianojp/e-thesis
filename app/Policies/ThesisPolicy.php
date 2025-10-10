@@ -69,6 +69,7 @@ class ThesisPolicy
             && $thesis->status === 'approved'
             && (
                 ($thesis->thesisTitle && (int) $thesis->thesisTitle->user_id === $user->id)
+                || ($thesis->thesisTitle && $thesis->thesisTitle->hasMember($user->id))
                 || $this->review($user, $thesis)
                 || $user->isAdmin()
             );

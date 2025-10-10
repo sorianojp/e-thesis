@@ -16,8 +16,9 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                     @if (auth()->user()->isStudent())
-                        <x-nav-link :href="route('theses.index')"
-                            :active="request()->routeIs('theses.index') || request()->routeIs('theses.create') || request()->routeIs('theses.show')">
+                        <x-nav-link :href="route('theses.index')" :active="request()->routeIs('theses.index') ||
+                            request()->routeIs('theses.create') ||
+                            request()->routeIs('theses.show')">
                             {{ __('Theses') }}
                         </x-nav-link>
                         <x-nav-link :href="route('theses.certificates')" :active="request()->routeIs('theses.certificates')">
@@ -26,7 +27,7 @@
                     @endif
                     @if (auth()->user()->isAdviser())
                         <x-nav-link :href="route('adviser.theses.index')" :active="request()->routeIs('adviser.theses.*')">
-                            {{ __('Adviser Queue') }}
+                            {{ __('Advisees') }}
                         </x-nav-link>
                     @endif
                     @if (auth()->user()->isAdmin())
@@ -105,8 +106,9 @@
             </x-responsive-nav-link>
             {{-- Student link (only if NOT admin) --}}
             @if (auth()->user()->isStudent())
-                <x-responsive-nav-link :href="route('theses.index')"
-                    :active="request()->routeIs('theses.index') || request()->routeIs('theses.create') || request()->routeIs('theses.show')">
+                <x-responsive-nav-link :href="route('theses.index')" :active="request()->routeIs('theses.index') ||
+                    request()->routeIs('theses.create') ||
+                    request()->routeIs('theses.show')">
                     {{ __('Theses') }}
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('theses.certificates')" :active="request()->routeIs('theses.certificates')">
@@ -117,7 +119,7 @@
             {{-- Adviser and Admin links --}}
             @if (auth()->user()->isAdviser())
                 <x-responsive-nav-link :href="route('adviser.theses.index')" :active="request()->routeIs('adviser.theses.*')">
-                    {{ __('Adviser Queue') }}
+                    {{ __('Advisees') }}
                 </x-responsive-nav-link>
             @endif
             @if (auth()->user()->isAdmin())

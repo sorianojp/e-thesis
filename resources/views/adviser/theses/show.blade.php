@@ -110,12 +110,14 @@
                     @foreach ($requiredChapters as $chapterLabel)
                         @php($chapter = $chapters->get($chapterLabel))
                         @php($status = $chapter->status ?? 'not submitted')
-                        @php($statusClasses = match ($status) {
-                            'pending' => 'bg-yellow-50 border-yellow-200',
-                            'approved' => 'bg-green-50 border-green-200',
-                            'rejected' => 'bg-red-50 border-red-200',
-                            default => 'bg-gray-50 border-gray-200',
-                        })
+                        @php(
+    $statusClasses = match ($status) {
+        'pending' => 'bg-yellow-50 border-yellow-200',
+        'approved' => 'bg-green-50 border-green-200',
+        'rejected' => 'bg-red-50 border-red-200',
+        default => 'bg-gray-50 border-gray-200',
+    },
+)
                         <div class="rounded-lg p-4 border {{ $statusClasses }}">
                             <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                                 <div>

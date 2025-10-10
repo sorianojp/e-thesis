@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        Advisee Titles
+        Advisees Titles
     </x-slot>
 
     <div class="py-6">
@@ -33,7 +33,8 @@
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900">{{ $title->title }}</h3>
                             <p class="text-sm text-gray-600 mt-1">{{ optional($title->course)->name }}</p>
-                            <p class="text-sm text-gray-500 mt-2">Leader: {{ optional($title->student)->name ?? 'Unassigned' }}</p>
+                            <p class="text-sm text-gray-500 mt-2">Leader:
+                                {{ optional($title->student)->name ?? 'Unassigned' }}</p>
                             <p class="text-sm text-gray-500 mt-1">
                                 Members:
                                 {{ $title->members->isNotEmpty() ? $title->members->pluck('name')->implode(', ') : 'None' }}
