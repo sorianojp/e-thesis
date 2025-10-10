@@ -9,6 +9,12 @@
                 <div class="rounded bg-green-50 text-green-900 px-4 py-2">{{ session('status') }}</div>
             @endif
 
+            @if (! $isLeader)
+                <div class="rounded bg-blue-50 text-blue-900 px-4 py-2">
+                    You are viewing this thesis as a team member. Only the leader can upload or replace chapters.
+                </div>
+            @endif
+
             <div class="bg-white shadow sm:rounded p-6">
                 <h2 class="text-xl font-semibold text-gray-900">{{ $thesisTitle->title }}</h2>
                 <p class="text-sm text-gray-600 mt-1">{{ optional($thesisTitle->course)->name }}</p>
@@ -21,6 +27,14 @@
                     <div>
                         <dt class="font-semibold">Submissions</dt>
                         <dd>{{ $thesisTitle->theses_count ?? $thesisTitle->theses->count() }}</dd>
+                    </div>
+                    <div>
+                        <dt class="font-semibold">Leader</dt>
+                        <dd>{{ optional($thesisTitle->student)->name ?? 'Unassigned' }}</dd>
+                    </div>
+                    <div class="md:col-span-2">
+                        <dt class="font-semibold">Team Members</dt>
+                        <dd>{{ $thesisTitle->members->isNotEmpty() ? $thesisTitle->members->pluck('name')->implode(', ') : '—' }}</dd>
                     </div>
                     @if ($thesisTitle->abstract)
                         <div class="md:col-span-2">
@@ -88,17 +102,23 @@
                     <x-icon name="upload" class="h-6 w-6 text-indigo-500" />
                     Chapter Submissions
                 </h3>
-                <p class="text-sm text-gray-600 mt-1">Upload the required chapters for this stage. Replacing a
-                    manuscript will reset its status to pending for adviser review.</p>
+                <p class="text-sm text-gray-600 mt-1">
+                    @if ($isLeader)
+                        Upload the required chapters for this stage. Replacing a manuscript will reset its status to pending
+                        for adviser review.
+                    @else
+                        Only the leader can upload manuscripts. You can monitor each chapter’s status below.
+                    @endif
+                </p>
 
                 <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     @foreach ($requiredChapters as $chapterLabel)
                         @php($chapter = $chapters->get($chapterLabel))
                         @php($status = $chapter->status ?? 'not submitted')
-                        @php($showUploadForm = in_array($status, ['rejected', 'not submitted'], true))
+                        @php($showUploadForm = $isLeader && in_array($status, ['rejected', 'not submitted'], true))
                         @php($statusClasses = match ($status) {
                             'pending' => 'bg-yellow-50 border-yellow-200',
-                            'approved', 'passed' => 'bg-green-50 border-green-200',
+                            'approved' => 'bg-green-50 border-green-200',
                             'rejected' => 'bg-red-50 border-red-200',
                             default => 'bg-gray-50 border-gray-200',
                         })
@@ -168,6 +188,10 @@
                                         </x-primary-button>
                                     </div>
                                 </form>
+                            @elseif (! $isLeader)
+                                <p class="mt-4 text-xs text-gray-500">
+                                    Only the leader can upload or replace this chapter.
+                                </p>
                             @elseif ($status === 'pending')
                                 <p class="mt-4 text-xs text-gray-500">This chapter is currently under adviser review.
                                     You

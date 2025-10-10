@@ -73,16 +73,34 @@
 </head>
 
 <body>
+    @php
+        $teamMembers = $thesis->thesisTitle->members ?? collect();
+        $teamMemberNamesUpper = $teamMembers->map(fn ($member) => \Illuminate\Support\Str::upper($member->name))->implode(', ');
+    @endphp
+
     <div class="title">Approval Sheet</div>
 
     <p class="indent">
         In partial fulfillment of the requirements leading to the degree of {{ $courseName ?? '____________' }}, the
         completed
         project study entitled, <span style="font-weight: bold">“{{ $thesis->thesisTitle->title }}”</span>, prepared and submitted by
-        <span style="font-weight: bold;  text-transform: uppercase;">{{ $student->name }}</span>, is endorsed for
+        <span style="font-weight: bold;  text-transform: uppercase;">{{ $student->name }}</span>
+        @if ($teamMembers->isNotEmpty())
+            , together with team members <span style="font-weight: bold; text-transform: uppercase;">{{ $teamMemberNamesUpper }}</span>
+        @endif, is endorsed for
         approval
         and acceptance.
     </p>
+
+    @if ($teamMembers->isNotEmpty())
+        <p class="indent">
+            Research Team:
+            <span style="font-weight: bold; text-transform: uppercase;">Leader - {{ \Illuminate\Support\Str::upper($student->name) }}</span>
+            @foreach ($teamMembers as $member)
+                ; <span style="font-weight: bold; text-transform: uppercase;">Member - {{ $member->name }}</span>
+            @endforeach
+        </p>
+    @endif
 
     <div class="adviser-block">
         <div class="signature-block">

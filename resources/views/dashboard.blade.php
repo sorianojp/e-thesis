@@ -8,10 +8,18 @@
             @if ($thesisStats)
                 <section class="space-y-4">
                     <h2 class="text-lg font-semibold text-gray-900">Your Thesis Overview</h2>
-                    <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+                    <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7">
                         <div class="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm">
                             <h3 class="text-sm font-medium text-gray-500">Theses Uploaded</h3>
                             <p class="mt-2 text-3xl font-semibold text-gray-900">{{ $thesisStats['uploaded'] }}</p>
+                        </div>
+                        <div class="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm">
+                            <h3 class="text-sm font-medium text-gray-500">Titles Led</h3>
+                            <p class="mt-2 text-3xl font-semibold text-gray-900">{{ $thesisStats['leader_titles'] }}</p>
+                        </div>
+                        <div class="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm">
+                            <h3 class="text-sm font-medium text-gray-500">Team Titles</h3>
+                            <p class="mt-2 text-3xl font-semibold text-gray-900">{{ $thesisStats['team_titles'] }}</p>
                         </div>
                         <div class="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm">
                             <h3 class="text-sm font-medium text-gray-500">Pending</h3>
@@ -25,10 +33,6 @@
                             <h3 class="text-sm font-medium text-gray-500">Rejected</h3>
                             <p class="mt-2 text-3xl font-semibold text-gray-900">{{ $thesisStats['rejected'] }}</p>
                         </div>
-                        <div class="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm">
-                            <h3 class="text-sm font-medium text-gray-500">Passed</h3>
-                            <p class="mt-2 text-3xl font-semibold text-gray-900">{{ $thesisStats['passed'] }}</p>
-                        </div>
                     </div>
                 </section>
             @endif
@@ -36,10 +40,14 @@
             @if ($adviserStats)
                 <section class="space-y-4">
                     <h2 class="text-lg font-semibold text-gray-900">Advisee Thesis Overview</h2>
-                    <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
+                    <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-7">
                         <div class="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm">
                             <h3 class="text-sm font-medium text-gray-500">Theses</h3>
                             <p class="mt-2 text-3xl font-semibold text-gray-900">{{ $adviserStats['theses'] }}</p>
+                        </div>
+                        <div class="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm">
+                            <h3 class="text-sm font-medium text-gray-500">Thesis Titles</h3>
+                            <p class="mt-2 text-3xl font-semibold text-gray-900">{{ $adviserStats['thesis_titles'] }}</p>
                         </div>
                         <div class="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm">
                             <h3 class="text-sm font-medium text-gray-500">Students</h3>
@@ -56,10 +64,6 @@
                         <div class="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm">
                             <h3 class="text-sm font-medium text-gray-500">Rejected</h3>
                             <p class="mt-2 text-3xl font-semibold text-gray-900">{{ $adviserStats['rejected'] }}</p>
-                        </div>
-                        <div class="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm">
-                            <h3 class="text-sm font-medium text-gray-500">Passed</h3>
-                            <p class="mt-2 text-3xl font-semibold text-gray-900">{{ $adviserStats['passed'] }}</p>
                         </div>
                     </div>
                 </section>
@@ -101,10 +105,6 @@
                         <div class="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm">
                             <h3 class="text-sm font-medium text-gray-500">Rejected Theses</h3>
                             <p class="mt-2 text-3xl font-semibold text-gray-900">{{ $adminStats['rejected'] }}</p>
-                        </div>
-                        <div class="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm">
-                            <h3 class="text-sm font-medium text-gray-500">Passed Theses</h3>
-                            <p class="mt-2 text-3xl font-semibold text-gray-900">{{ $adminStats['passed'] }}</p>
                         </div>
                     </div>
                 </section>

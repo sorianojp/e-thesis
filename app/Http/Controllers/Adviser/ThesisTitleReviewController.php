@@ -17,6 +17,7 @@ class ThesisTitleReviewController extends Controller
                 'student:id,name,email',
                 'course:id,name',
                 'theses' => fn ($q) => $q->latest('updated_at'),
+                'members:id,name',
             ])
             ->where('adviser_id', $req->user()->id)
             ->latest()
@@ -33,6 +34,7 @@ class ThesisTitleReviewController extends Controller
             'student:id,name,email',
             'course:id,name',
             'theses' => fn ($q) => $q->latest('updated_at'),
+            'members:id,name,email',
         ]);
 
         $requiredChapters = $thesisTitle->requiredChapters();
@@ -40,7 +42,7 @@ class ThesisTitleReviewController extends Controller
         $totalApproved = ThesisTitle::approvedChaptersCountForStudent($thesisTitle->user_id);
         $approvalEligible = $thesisTitle->chaptersAreApproved();
         $approvalSheetThesis = $approvalEligible
-            ? $thesisTitle->theses->first(fn ($chapter) => in_array($chapter->status, ['approved', 'passed']))
+            ? $thesisTitle->theses->first(fn ($chapter) => $chapter->status === 'approved')
             : null;
 
         return view('adviser.theses.show', compact('thesisTitle', 'requiredChapters', 'chapters', 'approvalEligible', 'approvalSheetThesis'));

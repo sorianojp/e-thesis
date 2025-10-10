@@ -22,7 +22,7 @@ class VerifyController extends Controller
         }
 
         /** @var Thesis|null $thesis */
-        $thesis = $thesisTitle->theses->first(fn (Thesis $t) => in_array($t->status, ['approved', 'passed'], true));
+        $thesis = $thesisTitle->theses->first(fn (Thesis $t) => $t->status === 'approved');
 
         if (!$thesis) {
             return response()->view('verify.result', [

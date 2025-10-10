@@ -64,6 +64,28 @@
                             @enderror
                         </div>
                     </div>
+                    <div class="mb-2">
+                        <x-input-label for="members" :value="__('Team Members (optional)')" />
+                        <p class="text-xs text-gray-500 mt-1">
+                            Add up to {{ \App\Models\ThesisTitle::MAX_MEMBERS }} student members. Hold Ctrl (or Command on
+                            Mac) to select multiple students.
+                        </p>
+                        <select name="members[]" id="members" multiple size="8"
+                            data-max-members="{{ \App\Models\ThesisTitle::MAX_MEMBERS }}"
+                            class="block mt-2 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                            @foreach ($students as $student)
+                                <option value="{{ $student->id }}"
+                                    @selected(collect(old('members'))->contains($student->id))>
+                                    {{ $student->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @if ($students->isEmpty())
+                            <p class="text-xs text-gray-500 mt-1">No other students are available to add right now.</p>
+                        @endif
+                        <x-input-error :messages="$errors->get('members')" class="mt-2" />
+                        <x-input-error :messages="$errors->get('members.*')" class="mt-2" />
+                    </div>
                     <div class="flex justify-end items-center mt-4">
                         <x-primary-button type="submit" class="gap-2">
                             <x-icon name="check" class="h-4 w-4" />
@@ -78,9 +100,40 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.querySelector('.thesis-title-form');
+            const memberSelect = document.querySelector('#members');
 
             if (!form) {
                 return;
+            }
+
+            if (memberSelect) {
+                const maxMembers = Number(memberSelect.dataset.maxMembers || 0);
+                memberSelect.addEventListener('change', () => {
+                    if (!maxMembers) {
+                        return;
+                    }
+
+                    const selected = Array.from(memberSelect.selectedOptions);
+                    if (selected.length <= maxMembers) {
+                        return;
+                    }
+
+                    const excess = selected.slice(maxMembers);
+                    excess.forEach((option) => {
+                        option.selected = false;
+                    });
+
+                    const message = `You can only add up to ${maxMembers} members.`;
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Team limit',
+                            text: message,
+                        });
+                    } else {
+                        alert(message);
+                    }
+                });
             }
 
             form.addEventListener('submit', (event) => {

@@ -36,9 +36,7 @@
                                                 ? 'bg-green-100 text-green-800'
                                                 : ($t->status === 'rejected'
                                                     ? 'bg-red-100 text-red-800'
-                                                    : ($t->status === 'passed'
-                                                        ? 'bg-blue-100 text-blue-800'
-                                                        : ''))) }}">
+                                                    : '')) }}">
                                         {{ $t->status }}
                                     </span>
                                 </td>
@@ -52,8 +50,6 @@
                                             </x-primary-button>
                                         </a>
                                     @elseif ($t->status === 'pending')
-                                        <span class="text-sm text-gray-500">N/A</span>
-                                    @elseif ($t->status === 'passed')
                                         <span class="text-sm text-gray-500">N/A</span>
                                     @endif
                                 </td>

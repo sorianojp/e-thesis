@@ -43,7 +43,7 @@ class ThesisReviewController extends Controller
         ]);
         $approvalEligible = $thesis->thesisTitle->chaptersAreApproved();
         $approvalSheetThesis = $approvalEligible
-            ? $thesis->thesisTitle->theses->first(fn ($chapter) => in_array($chapter->status, ['approved', 'passed']))
+            ? $thesis->thesisTitle->theses->first(fn ($chapter) => $chapter->status === 'approved')
             : null;
 
         return view('admin.theses.show', compact('thesis', 'approvalEligible', 'approvalSheetThesis'));
@@ -126,7 +126,7 @@ class ThesisReviewController extends Controller
     public function certificate(Thesis $thesis)
     {
         Gate::authorize('downloadCertificate', $thesis);
-        abort_unless(in_array($thesis->status, ['approved', 'passed'], true), 403);
+        abort_unless($thesis->status === 'approved', 403);
 
         $stage = request()->query('stage', 'final');
         abort_unless(in_array($stage, ['title', 'final'], true), 404);
@@ -135,6 +135,7 @@ class ThesisReviewController extends Controller
             'thesisTitle.student:id,name',
             'thesisTitle.course:id,name',
             'thesisTitle.adviserUser:id,name',
+            'thesisTitle.members:id,name',
             'thesisTitle.theses' => fn ($q) => $q->latest('updated_at'),
         ]);
 
@@ -186,6 +187,7 @@ class ThesisReviewController extends Controller
             'thesisTitle.student:id,name',
             'thesisTitle.course:id,name',
             'thesisTitle.adviserUser:id,name',
+            'thesisTitle.members:id,name',
         ]);
 
         abort_unless($thesis->thesisTitle->chaptersAreApproved(), 403);
@@ -202,22 +204,4 @@ class ThesisReviewController extends Controller
 
         return $pdf->download("Approval_Sheet_{$studentSlug}.pdf");
     }
-
-    public function markAsPassed(Request $req, Thesis $thesis)
-    {
-        Gate::authorize('admin', Thesis::class);
-        Gate::authorize('review', $thesis);
-        abort_unless($thesis->status === 'approved', 403);
-
-        $thesis->loadMissing('thesisTitle');
-
-        $thesis->update(['status' => 'passed']);
-
-        $prefix = $req->user()->isAdmin() ? 'admin' : 'adviser';
-
-        return redirect()
-            ->route($prefix . '.theses.index')
-            ->with('status', 'Chapter marked as passed.');
-    }
-
 }

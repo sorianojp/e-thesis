@@ -30,8 +30,13 @@
                             'pending' => 'bg-yellow-100 text-yellow-800',
                             'approved' => 'bg-green-100 text-green-800',
                             'rejected' => 'bg-red-100 text-red-800',
-                            'passed' => 'bg-blue-100 text-blue-800',
                         ];
+
+                        $isLeader = (int) $title->user_id === auth()->id();
+                        $otherMembers = $title->members
+                            ->filter(fn ($member) => (int) $member->id !== auth()->id())
+                            ->pluck('name')
+                            ->implode(', ');
                     @endphp
                     <div
                         class="bg-white shadow rounded-lg p-6 flex flex-col md:flex-row md:items-center md:justify-between">
@@ -44,6 +49,20 @@
                             <p class="text-sm text-gray-500 mt-1">
                                 Submissions: {{ $title->theses_count }}
                             </p>
+                            <p class="text-sm text-gray-500 mt-1">
+                                Role: {{ $isLeader ? 'Leader' : 'Member' }}
+                            </p>
+                            @if (! $isLeader)
+                                <p class="text-sm text-gray-500 mt-1">
+                                    Leader: {{ optional($title->student)->name ?? 'Unassigned' }}
+                                </p>
+                            @endif
+                            @if ($title->members->isNotEmpty())
+                                <p class="text-sm text-gray-500 mt-1">
+                                    Team Members:
+                                    {{ $isLeader ? $title->members->pluck('name')->implode(', ') : ($otherMembers ?: 'No additional members') }}
+                                </p>
+                            @endif
                             @php
                                 $titleDefenseReady = $title->titleDefenseApproved();
                                 $finalDefenseReady = $title->chaptersAreApproved();

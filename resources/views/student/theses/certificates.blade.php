@@ -18,14 +18,28 @@
             @forelse ($thesisTitles as $title)
                 @php($titleDefenseReady = $title->titleDefenseApproved())
                 @php($finalDefenseReady = $title->chaptersAreApproved())
-                @php($titleDefenseChapter = $title->theses->first(fn($chap) => in_array($chap->chapter_label, \App\Models\ThesisTitle::titleDefenseChapters(), true) && in_array($chap->status, ['approved', 'passed'], true)))
-                @php($finalDefenseChapter = $title->theses->first(fn($chap) => in_array($chap->status, ['approved', 'passed'], true)))
+                @php($titleDefenseChapter = $title->theses->first(fn($chap) => in_array($chap->chapter_label, \App\Models\ThesisTitle::titleDefenseChapters(), true) && $chap->status === 'approved'))
+                @php($finalDefenseChapter = $title->theses->first(fn($chap) => $chap->status === 'approved'))
                 @php($approvalSheetChapter = $finalDefenseReady ? $finalDefenseChapter : null)
+                @php($isLeader = isset($studentId) ? (int) $title->user_id === (int) $studentId : (int) $title->user_id === auth()->id())
+                @php($memberNames = $title->members
+                    ->when(! $isLeader, fn ($members) => $members->reject(fn ($member) => (int) $member->id === (int) ($studentId ?? auth()->id())))
+                    ->pluck('name')
+                    ->implode(', '))
                 <div
                     class="bg-white shadow rounded-lg p-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900">{{ $title->title }}</h3>
                         <p class="text-sm text-gray-600">{{ optional($title->course)->name }}</p>
+                        <p class="text-xs text-gray-500 mt-1">Role: {{ $isLeader ? 'Leader' : 'Member' }}</p>
+                        @if (! $isLeader)
+                            <p class="text-xs text-gray-500 mt-1">Leader: {{ optional($title->student)->name ?? 'Unassigned' }}</p>
+                        @endif
+                        @if ($title->members->isNotEmpty())
+                            <p class="text-xs text-gray-500 mt-1">
+                                Team Members: {{ $memberNames ?: 'None' }}
+                            </p>
+                        @endif
                         <p class="text-xs text-gray-500 mt-1">Approved chapters: {{ $title->approvedChaptersCount() }}
                         </p>
                     </div>

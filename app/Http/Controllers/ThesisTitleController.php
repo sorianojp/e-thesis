@@ -16,10 +16,20 @@ class ThesisTitleController extends Controller
     {
         abort_unless($req->user()->isStudent(), 403);
 
+        $studentId = $req->user()->id;
+
         $thesisTitles = ThesisTitle::query()
-            ->with(['theses' => fn ($q) => $q->latest('updated_at')])
+            ->with([
+                'student:id,name',
+                'theses' => fn ($q) => $q->latest('updated_at'),
+                'members' => fn ($q) => $q->orderBy('name'),
+            ])
             ->withCount('theses')
-            ->where('user_id', $req->user()->id)
+            ->where(function ($query) use ($studentId) {
+                $query
+                    ->where('user_id', $studentId)
+                    ->orWhereHas('members', fn ($memberQuery) => $memberQuery->where('users.id', $studentId));
+            })
             ->latest()
             ->paginate(10);
 
@@ -36,6 +46,12 @@ class ThesisTitleController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
+        $students = User::query()
+            ->where('role', User::ROLE_STUDENT)
+            ->where('id', '!=', auth()->id())
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
         $previousTitles = ThesisTitle::query()
             ->where('user_id', auth()->id())
             ->orderByDesc('created_at')
@@ -43,7 +59,7 @@ class ThesisTitleController extends Controller
             ->unique()
             ->values();
 
-        return view('student.theses.create', compact('courses', 'advisers', 'previousTitles'));
+        return view('student.theses.create', compact('courses', 'advisers', 'previousTitles', 'students'));
     }
 
     public function store(Request $req)
@@ -70,6 +86,13 @@ class ThesisTitleController extends Controller
                 'mimes:pdf',
                 'mimetypes:application/pdf,application/x-pdf',
                 'max:40960',
+            ],
+            'members' => ['nullable', 'array', 'max:' . ThesisTitle::MAX_MEMBERS],
+            'members.*' => [
+                'integer',
+                'distinct',
+                Rule::notIn([$req->user()->id]),
+                Rule::exists('users', 'id')->where('role', User::ROLE_STUDENT),
             ],
         ]);
 
@@ -107,6 +130,19 @@ class ThesisTitleController extends Controller
             'endorsement_pdf_path' => $endorsementPath,
         ]);
 
+        $memberIds = collect($req->input('members', []))
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->unique()
+            ->reject(fn ($id) => $id === $userId)
+            ->values()
+            ->all();
+
+        if ($memberIds !== []) {
+            $thesisTitle->members()->sync($memberIds);
+        }
+
         return redirect()
             ->route('theses.show', $thesisTitle)
             ->with('status', 'Title submitted. Upload your thesis document next.');
@@ -114,17 +150,30 @@ class ThesisTitleController extends Controller
 
     public function show(Request $req, ThesisTitle $thesisTitle)
     {
-        abort_unless($req->user()->isStudent() && $thesisTitle->user_id === $req->user()->id, 403);
+        abort_unless($req->user()->isStudent(), 403);
 
-        $thesisTitle->load(['theses' => fn ($q) => $q->latest('updated_at')])->loadCount('theses');
+        $studentId = $req->user()->id;
+
+        abort_unless(
+            (int) $thesisTitle->user_id === $studentId || $thesisTitle->hasMember($studentId),
+            403
+        );
+
+        $thesisTitle->load([
+            'student:id,name',
+            'theses' => fn ($q) => $q->latest('updated_at'),
+            'members' => fn ($q) => $q->orderBy('name'),
+        ])->loadCount('theses');
 
         $requiredChapters = $thesisTitle->requiredChapters();
         $chapters = $thesisTitle->theses->keyBy('chapter_label');
+        $isLeader = (int) $thesisTitle->user_id === $studentId;
 
         return view('student.theses.show', [
             'thesisTitle' => $thesisTitle,
             'requiredChapters' => $requiredChapters,
             'chapters' => $chapters,
+            'isLeader' => $isLeader,
         ]);
     }
 
@@ -134,12 +183,22 @@ class ThesisTitleController extends Controller
 
         $studentId = $req->user()->id;
         $thesisTitles = ThesisTitle::query()
-            ->where('user_id', $studentId)
-            ->with(['course:id,name', 'theses' => fn ($q) => $q->latest('updated_at')])
+            ->where(function ($query) use ($studentId) {
+                $query
+                    ->where('user_id', $studentId)
+                    ->orWhereHas('members', fn ($memberQuery) => $memberQuery->where('users.id', $studentId));
+            })
+            ->with([
+                'course:id,name',
+                'student:id,name',
+                'members:id,name',
+                'theses' => fn ($q) => $q->latest('updated_at'),
+            ])
             ->get();
 
         return view('student.theses.certificates', [
             'thesisTitles' => $thesisTitles,
+            'studentId' => $studentId,
         ]);
     }
 }

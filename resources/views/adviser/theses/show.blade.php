@@ -16,14 +16,21 @@
 
             @php($firstChapter = $chapters->first())
             @php($titleDefenseReady = $thesisTitle->titleDefenseApproved())
-            @php($firstApproved = $chapters->firstWhere('status', 'approved') ?? $chapters->firstWhere('status', 'passed'))
+            @php($firstApproved = $chapters->firstWhere('status', 'approved'))
             @php($hasPanel = (bool) ($thesisTitle->panel_chairman || $thesisTitle->panelist_one || $thesisTitle->panelist_two))
 
             <div class="bg-white shadow sm:rounded p-6">
                 <h2 class="text-xl font-semibold text-gray-900">{{ $thesisTitle->title }}</h2>
                 <p class="text-sm text-gray-600 mt-1">{{ optional($thesisTitle->course)->name }}</p>
-                <p class="text-sm text-gray-500 mt-2">Student: {{ $thesisTitle->student->name }}
-                    ({{ $thesisTitle->student->email }})</p>
+                <p class="text-sm text-gray-500 mt-2">Leader: {{ optional($thesisTitle->student)->name ?? 'Unassigned' }}
+                    @if ($thesisTitle->student && $thesisTitle->student->email)
+                        ({{ $thesisTitle->student->email }})
+                    @endif
+                </p>
+                <p class="text-sm text-gray-500 mt-1">
+                    Members:
+                    {{ $thesisTitle->members->isNotEmpty() ? $thesisTitle->members->pluck('name')->implode(', ') : 'None' }}
+                </p>
                 <p class="text-sm text-gray-500 mt-1">
                     Adviser: {{ optional($thesisTitle->adviserUser)->name ?? 'Unassigned' }}
                 </p>
@@ -105,7 +112,7 @@
                         @php($status = $chapter->status ?? 'not submitted')
                         @php($statusClasses = match ($status) {
                             'pending' => 'bg-yellow-50 border-yellow-200',
-                            'approved', 'passed' => 'bg-green-50 border-green-200',
+                            'approved' => 'bg-green-50 border-green-200',
                             'rejected' => 'bg-red-50 border-red-200',
                             default => 'bg-gray-50 border-gray-200',
                         })

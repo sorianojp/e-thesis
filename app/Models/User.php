@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -64,6 +65,12 @@ class User extends Authenticatable
     public function canReviewTheses(): bool
     {
         return $this->isAdviser();
+    }
+
+    public function thesisMemberships(): BelongsToMany
+    {
+        return $this->belongsToMany(ThesisTitle::class, 'thesis_title_members', 'student_id', 'thesis_title_id')
+            ->withTimestamps();
     }
 
 }

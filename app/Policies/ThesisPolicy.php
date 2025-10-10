@@ -13,14 +13,22 @@ class ThesisPolicy
             return true;
         }
 
-        $thesis->loadMissing('thesisTitle');
+        $thesis->loadMissing(['thesisTitle', 'thesisTitle.members']);
         $thesisTitle = $thesis->thesisTitle;
 
         if ($user->isAdviser()) {
             return $thesisTitle && (int) $thesisTitle->adviser_id === $user->id;
         }
 
-        return $thesisTitle && (int) $thesisTitle->user_id === $user->id;
+        if (! $thesisTitle) {
+            return false;
+        }
+
+        if ((int) $thesisTitle->user_id === $user->id) {
+            return true;
+        }
+
+        return $thesisTitle->hasMember($user->id);
     }
 
     public function update(User $user, Thesis $thesis): bool {
@@ -58,7 +66,7 @@ class ThesisPolicy
         }
 
         return $eligible
-            && in_array($thesis->status, ['approved', 'passed'], true)
+            && $thesis->status === 'approved'
             && (
                 ($thesis->thesisTitle && (int) $thesis->thesisTitle->user_id === $user->id)
                 || $this->review($user, $thesis)

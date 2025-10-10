@@ -29,9 +29,7 @@
                                     ? 'bg-green-100 text-green-800'
                                     : ($thesis->status === 'rejected'
                                         ? 'bg-red-100 text-red-800'
-                                        : ($thesis->status === 'passed'
-                                            ? 'bg-blue-100 text-blue-800'
-                                            : ''))) }}">
+                                        : '')) }}">
                             {{ $thesis->status }}
                         </span>
                     </p>
@@ -39,7 +37,7 @@
                 @php($approvalSheetThesis = $approvalSheetThesis ?? null)
                 @php($titleDefenseReady = $thesis->thesisTitle->titleDefenseApproved())
                 @php($finalDefenseReady = $thesis->thesisTitle->chaptersAreApproved())
-                @php($firstApproved = $thesis->thesisTitle->theses->first(fn ($chapter) => in_array($chapter->status, ['approved', 'passed'])))
+                @php($firstApproved = $thesis->thesisTitle->theses->first(fn ($chapter) => $chapter->status === 'approved'))
 
                 <div class="text-sm text-gray-500 mb-1">
                     All grading is now handled offline; certificates will display a blank grade line.

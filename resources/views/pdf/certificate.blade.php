@@ -90,6 +90,7 @@
     </div>
 
     @php($adviserName = optional($thesis->thesisTitle->adviserUser)->name)
+    @php($teamMembers = $thesis->thesisTitle->members ?? collect())
 
     <div class="title">{{ $stageLabel ?? 'CERTIFICATE OF ELIGIBILITY TO DEFEND' }}</div>
     <p class="mt" style="font-size:10pt;">
@@ -104,6 +105,14 @@
 
         @if ($adviserName)
             <p class="mt">Adviser: <strong>{{ $adviserName }}</strong></p>
+        @endif
+
+        @if ($teamMembers->isNotEmpty())
+            <p class="mt"><strong>Research Team</strong></p>
+            <p>Leader: <strong>{{ $student->name }}</strong></p>
+            @foreach ($teamMembers as $member)
+                <p>Member: <strong>{{ $member->name }}</strong></p>
+            @endforeach
         @endif
 
         @if ($thesis->thesisTitle->panel_chairman || $thesis->thesisTitle->panelist_one || $thesis->thesisTitle->panelist_two)

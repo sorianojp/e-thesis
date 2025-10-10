@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('thesis_title_id')->nullable()->constrained('thesis_titles')->cascadeOnDelete();
             $table->string('chapter_label');
             $table->string('thesis_pdf_path');
-            $table->enum('status', ['pending', 'approved', 'rejected', 'passed'])->default('pending');
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->unsignedInteger('plagiarism_score')->nullable();
             $table->json('plagiarism_report')->nullable();
             $table->timestamp('plagiarism_checked_at')->nullable();

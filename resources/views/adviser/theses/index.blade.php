@@ -22,7 +22,6 @@
                             'pending' => 'bg-yellow-100 text-yellow-800',
                             'approved' => 'bg-green-100 text-green-800',
                             'rejected' => 'bg-red-100 text-red-800',
-                            'passed' => 'bg-blue-100 text-blue-800',
                         ];
 
                         $titleDefenseReady = $title->titleDefenseApproved();
@@ -34,7 +33,11 @@
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900">{{ $title->title }}</h3>
                             <p class="text-sm text-gray-600 mt-1">{{ optional($title->course)->name }}</p>
-                            <p class="text-sm text-gray-500 mt-2">Student: {{ optional($title->student)->name }}</p>
+                            <p class="text-sm text-gray-500 mt-2">Leader: {{ optional($title->student)->name ?? 'Unassigned' }}</p>
+                            <p class="text-sm text-gray-500 mt-1">
+                                Members:
+                                {{ $title->members->isNotEmpty() ? $title->members->pluck('name')->implode(', ') : 'None' }}
+                            </p>
                             <p class="text-sm text-gray-500 mt-1">
                                 Submissions: {{ $thesisCount }}
                             </p>

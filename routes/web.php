@@ -32,12 +32,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->pluck('count', 'status')
                 ->map(fn ($count) => (int) $count);
 
+            $leaderTitleCount = ThesisTitle::query()
+                ->where('user_id', $user->id)
+                ->count();
+
+            $teamTitlesCount = ThesisTitle::query()
+                ->whereHas('members', fn ($q) => $q->where('users.id', $user->id))
+                ->count();
+
             $thesisStats = [
                 'uploaded' => $statusCounts->sum(),
                 'pending' => $statusCounts['pending'] ?? 0,
                 'approved' => $statusCounts['approved'] ?? 0,
                 'rejected' => $statusCounts['rejected'] ?? 0,
-                'passed' => $statusCounts['passed'] ?? 0,
+                'leader_titles' => $leaderTitleCount,
+                'team_titles' => $teamTitlesCount,
             ];
         } elseif ($user->isAdviser()) {
             $adviserTheses = Thesis::query()
@@ -55,10 +64,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
                     ->where('adviser_id', $user->id)
                     ->distinct('user_id')
                     ->count('user_id'),
+                'thesis_titles' => ThesisTitle::query()
+                    ->where('adviser_id', $user->id)
+                    ->count(),
                 'pending' => $statusCounts['pending'] ?? 0,
                 'approved' => $statusCounts['approved'] ?? 0,
                 'rejected' => $statusCounts['rejected'] ?? 0,
-                'passed' => $statusCounts['passed'] ?? 0,
             ];
         } elseif ($user->isAdmin()) {
             $statusCounts = Thesis::query()
@@ -83,7 +94,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 'pending' => $statusCounts['pending'] ?? 0,
                 'approved' => $statusCounts['approved'] ?? 0,
                 'rejected' => $statusCounts['rejected'] ?? 0,
-                'passed' => $statusCounts['passed'] ?? 0,
             ];
         }
 
@@ -154,10 +164,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->middleware('can:review,thesis')
                 ->name('adviser.theses.panel.update');
 
-            Route::post('/theses/{thesis}/grade', [ThesisReviewController::class, 'markAsPassed'])
-                ->middleware('can:review,thesis')
-                ->name('adviser.theses.grade');
-
             Route::post('/theses/{thesis}/reject', [ThesisReviewController::class, 'reject'])
                 ->middleware('can:review,thesis')
                 ->name('adviser.theses.reject');
@@ -184,10 +190,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/theses/{thesis}/panel', [ThesisReviewController::class, 'updatePanel'])
                 ->middleware('can:review,thesis')
                 ->name('admin.theses.panel.update');
-
-            Route::post('/theses/{thesis}/grade', [ThesisReviewController::class, 'markAsPassed'])
-                ->middleware('can:review,thesis')
-                ->name('admin.theses.grade');
 
             Route::post('/theses/{thesis}/reject', [ThesisReviewController::class, 'reject'])
                 ->middleware('can:review,thesis')

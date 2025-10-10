@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ThesisTitle extends Model
 {
+    public const MAX_MEMBERS = 10;
+
     protected $fillable = [
         'user_id',
         'course_id',
@@ -47,7 +50,7 @@ class ThesisTitle extends Model
 
         $approved = $this->theses
             ->whereIn('chapter_label', $required)
-            ->whereIn('status', ['approved', 'passed'])
+            ->where('status', 'approved')
             ->pluck('chapter_label')
             ->unique()
             ->all();
@@ -68,7 +71,7 @@ class ThesisTitle extends Model
 
         $chapters = $this->theses
             ->whereIn('chapter_label', $required)
-            ->whereIn('status', ['approved', 'passed'])
+            ->where('status', 'approved')
             ->pluck('chapter_label')
             ->unique()
             ->all();
@@ -82,7 +85,7 @@ class ThesisTitle extends Model
     public function approvedChaptersCount(): int
     {
         return $this->theses
-            ->whereIn('status', ['approved', 'passed'])
+            ->where('status', 'approved')
             ->unique('chapter_label')
             ->count();
     }
@@ -91,7 +94,7 @@ class ThesisTitle extends Model
     {
         return static::query()
             ->where('user_id', $studentId)
-            ->with(['theses' => fn ($q) => $q->whereIn('status', ['approved', 'passed'])])
+            ->with(['theses' => fn ($q) => $q->where('status', 'approved')])
             ->get()
             ->flatMap(fn (ThesisTitle $title) => $title->theses)
             ->unique('chapter_label')
@@ -120,6 +123,21 @@ class ThesisTitle extends Model
     public function adviserUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'adviser_id');
+    }
+
+    public function members(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'thesis_title_members', 'thesis_title_id', 'student_id')
+            ->withTimestamps();
+    }
+
+    public function hasMember(int $studentId): bool
+    {
+        if ($this->relationLoaded('members')) {
+            return $this->members->contains(fn (User $member) => (int) $member->id === $studentId);
+        }
+
+        return $this->members()->where('student_id', $studentId)->exists();
     }
 
     public function theses(): HasMany
