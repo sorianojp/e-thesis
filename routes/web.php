@@ -13,6 +13,7 @@ use App\Models\ThesisTitle;
 use App\Models\User;
 use App\Http\Controllers\Adviser\ThesisTitleReviewController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 
 Route::get('/verify/{token}', [VerifyController::class, 'show'])->name('verify.show');
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -52,6 +53,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
             $adviserTheses = Thesis::query()
                 ->whereHas('thesisTitle', fn ($q) => $q->where('adviser_id', $user->id));
 
+            $adviserTitles = ThesisTitle::query()
+                ->where('adviser_id', $user->id);
+
+            $adviserTitleIds = (clone $adviserTitles)->pluck('id');
+            $leaderIds = (clone $adviserTitles)->pluck('user_id')->filter();
+
+            $memberIds = $adviserTitleIds->isEmpty()
+                ? collect()
+                : DB::table('thesis_title_members')
+                    ->whereIn('thesis_title_id', $adviserTitleIds)
+                    ->pluck('student_id');
+
+            $studentCount = $leaderIds
+                ->merge($memberIds)
+                ->unique()
+                ->count();
+
             $statusCounts = (clone $adviserTheses)
                 ->selectRaw('status, COUNT(*) as count')
                 ->groupBy('status')
@@ -60,13 +78,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
             $adviserStats = [
                 'theses' => (clone $adviserTheses)->count(),
-                'students' => ThesisTitle::query()
-                    ->where('adviser_id', $user->id)
-                    ->distinct('user_id')
-                    ->count('user_id'),
-                'thesis_titles' => ThesisTitle::query()
-                    ->where('adviser_id', $user->id)
-                    ->count(),
+                'students' => $studentCount,
+                'thesis_titles' => (clone $adviserTitles)->count(),
                 'pending' => $statusCounts['pending'] ?? 0,
                 'approved' => $statusCounts['approved'] ?? 0,
                 'rejected' => $statusCounts['rejected'] ?? 0,
