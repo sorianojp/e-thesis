@@ -4,7 +4,7 @@
     </x-slot>
 
     <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-full mx-auto sm:px-6 lg:px-8 space-y-6">
             @if (session('status'))
                 <div class="rounded bg-green-50 text-green-900 px-4 py-2">{{ session('status') }}</div>
             @endif
@@ -104,8 +104,8 @@
                             </div>
 
                             @if ($showUploadForm)
-                                <form method="POST" action="{{ route('theses.upload', $thesisTitle) }}" class="mt-4"
-                                    enctype="multipart/form-data">
+                                <form method="POST" action="{{ route('theses.upload', $thesisTitle) }}"
+                                    class="mt-4 thesis-upload-form" enctype="multipart/form-data">
                                     @csrf
                                     <input type="hidden" name="chapter_label" value="{{ $chapterLabel }}">
                                     @if ($errors->get('chapter_label') && old('chapter_label') === $chapterLabel)
@@ -155,4 +155,44 @@
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const uploadForms = document.querySelectorAll('.thesis-upload-form');
+
+            if (!uploadForms.length) {
+                return;
+            }
+
+            uploadForms.forEach((form) => {
+                form.addEventListener('submit', (event) => {
+                    const fileInput = form.querySelector('input[type="file"]');
+
+                    if (!fileInput || !fileInput.files.length) {
+                        return;
+                    }
+
+                    event.preventDefault();
+
+                    if (typeof Swal === 'undefined') {
+                        form.submit();
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'Uploading thesis...',
+                        text: 'Please wait while we upload your file.',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                            form.submit();
+                        },
+                    });
+                });
+            });
+        });
+    </script>
 </x-app-layout>

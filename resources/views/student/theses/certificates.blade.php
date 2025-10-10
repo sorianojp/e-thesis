@@ -4,7 +4,7 @@
     </x-slot>
 
     <div class="py-6">
-        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-full mx-auto sm:px-6 lg:px-8 space-y-6">
             @if (session('status'))
                 <div class="rounded bg-green-50 text-green-900 px-4 py-2">{{ session('status') }}</div>
             @endif
@@ -20,6 +20,7 @@
                 @php($finalDefenseReady = $title->chaptersAreApproved())
                 @php($titleDefenseChapter = $title->theses->first(fn($chap) => in_array($chap->chapter_label, \App\Models\ThesisTitle::titleDefenseChapters(), true) && in_array($chap->status, ['approved', 'passed'], true)))
                 @php($finalDefenseChapter = $title->theses->first(fn($chap) => in_array($chap->status, ['approved', 'passed'], true)))
+                @php($approvalSheetChapter = $finalDefenseReady ? $finalDefenseChapter : null)
                 <div
                     class="bg-white shadow rounded-lg p-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
@@ -32,7 +33,8 @@
                     <div class="flex flex-wrap gap-2">
                         @if ($titleDefenseReady && $titleDefenseChapter)
                             <a href="{{ route('theses.certificate', [$titleDefenseChapter, 'stage' => 'title']) }}"
-                                class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <x-icon name="certificate" class="h-5 w-5 text-white" />
                                 Title Defense Certificate
                             </a>
                         @else
@@ -41,11 +43,22 @@
 
                         @if ($finalDefenseReady && $finalDefenseChapter)
                             <a href="{{ route('theses.certificate', [$finalDefenseChapter, 'stage' => 'final']) }}"
-                                class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                <x-icon name="certificate" class="h-5 w-5 text-white" />
                                 Final Defense Certificate
                             </a>
                         @else
                             <span class="text-sm text-gray-500">Final Defense certificate unavailable.</span>
+                        @endif
+
+                        @if ($finalDefenseReady && $approvalSheetChapter)
+                            <a href="{{ route('theses.approval', $approvalSheetChapter) }}"
+                                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-slate-600 hover:bg-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">
+                                <x-icon name="certificate" class="h-5 w-5 text-white" />
+                                Approval Sheet
+                            </a>
+                        @else
+                            <span class="text-sm text-gray-500">Approval sheet not yet available.</span>
                         @endif
                     </div>
                 </div>
@@ -54,22 +67,6 @@
                     No thesis titles yet.
                 </div>
             @endforelse
-
-            <div class="bg-white shadow sm:rounded p-6 space-y-3">
-                <h2 class="text-lg font-semibold text-gray-900">Approval Sheet</h2>
-                <p class="text-sm text-gray-600">The approval sheet becomes available once five chapters (1-5) are
-                    approved
-                    across your Title Defense and Final Defense.</p>
-
-                @if ($approvalEligible && $approvalSheetThesis)
-                    <a href="{{ route('theses.approval', $approvalSheetThesis) }}"
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                        Approval Sheet
-                    </a>
-                @else
-                    <span class="text-sm text-gray-500">Approval sheet not yet available.</span>
-                @endif
-            </div>
         </div>
     </div>
 </x-app-layout>

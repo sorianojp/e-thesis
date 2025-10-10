@@ -138,16 +138,8 @@ class ThesisTitleController extends Controller
             ->with(['course:id,name', 'theses' => fn ($q) => $q->latest('updated_at')])
             ->get();
 
-        $finalDefenseTitle = $thesisTitles->first(fn (ThesisTitle $title) => $title->chaptersAreApproved());
-        $approvalEligible = (bool) $finalDefenseTitle;
-        $approvalSheetThesis = $approvalEligible
-            ? $finalDefenseTitle->theses->first(fn ($chapter) => in_array($chapter->status, ['approved', 'passed']))
-            : null;
-
         return view('student.theses.certificates', [
             'thesisTitles' => $thesisTitles,
-            'approvalEligible' => $approvalEligible,
-            'approvalSheetThesis' => $approvalSheetThesis,
         ]);
     }
 }

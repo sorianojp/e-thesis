@@ -6,7 +6,7 @@
     </x-slot>
 
     <div class="py-6">
-        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-full mx-auto sm:px-6 lg:px-8 space-y-6">
             @if (session('status'))
                 <div class="rounded bg-green-50 text-green-900 px-4 py-2">{{ session('status') }}</div>
             @endif
@@ -151,8 +151,8 @@
                             <div class="mt-4">
                                 @if ($chapter->status === 'pending')
                                     <div class="flex flex-wrap gap-2">
-                                        <form method="POST"
-                                            action="{{ route('adviser.theses.approve', $chapter) }}">
+                                        <form method="POST" action="{{ route('adviser.theses.approve', $chapter) }}"
+                                            class="adviser-review-form" data-review-action="approve">
                                             @csrf
                                             <x-primary-button type="submit">
                                                 <span class="inline-flex items-center gap-2">
@@ -161,7 +161,8 @@
                                                 </span>
                                             </x-primary-button>
                                         </form>
-                                        <form method="POST" action="{{ route('adviser.theses.reject', $chapter) }}">
+                                        <form method="POST" action="{{ route('adviser.theses.reject', $chapter) }}"
+                                            class="adviser-review-form" data-review-action="reject">
                                             @csrf
                                             <x-danger-button type="submit">
                                                 <span class="inline-flex items-center gap-2">
@@ -184,4 +185,41 @@
 
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const reviewForms = document.querySelectorAll('.adviser-review-form');
+
+            if (!reviewForms.length) {
+                return;
+            }
+
+            reviewForms.forEach((form) => {
+                form.addEventListener('submit', (event) => {
+                    event.preventDefault();
+
+                    if (typeof Swal === 'undefined') {
+                        form.submit();
+                        return;
+                    }
+
+                    const action = form.dataset.reviewAction || 'submit';
+                    const actionLabel = action === 'approve' ? 'approval' : action === 'reject' ?
+                        'rejection' : 'decision';
+
+                    Swal.fire({
+                        title: `Submitting ${actionLabel}...`,
+                        text: 'Please wait while we process this update.',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                            form.submit();
+                        },
+                    });
+                });
+            });
+        });
+    </script>
 </x-app-layout>
