@@ -123,11 +123,17 @@
                     <div class="flex flex-wrap gap-2">
                         <form method="POST" action="{{ route($routePrefix . '.theses.approve', $thesis) }}">
                             @csrf
-                            <x-primary-button type="submit">Approve</x-primary-button>
+                            <x-primary-button type="submit" class="gap-2">
+                                <x-icon name="check" class="h-4 w-4" />
+                                Approve
+                            </x-primary-button>
                         </form>
                         <form method="POST" action="{{ route($routePrefix . '.theses.reject', $thesis) }}">
                             @csrf
-                            <x-danger-button type="submit">Reject</x-danger-button>
+                            <x-danger-button type="submit" class="gap-2">
+                                <x-icon name="x-mark" class="h-4 w-4" />
+                                Reject
+                            </x-danger-button>
                         </form>
                     </div>
                 @else

@@ -46,7 +46,8 @@
                                 <td class="px-6 py-4">
                                     @if (Auth::user()->can('review', $t) && in_array($t->status, ['pending', 'approved']))
                                         <a href="{{ route($routePrefix . '.theses.show', $t) }}">
-                                            <x-primary-button type="button">
+                                            <x-primary-button type="button" class="gap-2">
+                                                <x-icon name="eye" class="h-4 w-4" />
                                                 {{ $t->status === 'approved' ? 'Re-review' : 'Review' }}
                                             </x-primary-button>
                                         </a>

@@ -35,26 +35,14 @@
                     @if ($thesisTitle->abstract_pdf_path && $firstChapter)
                         <a class="inline-flex items-center gap-2 text-indigo-600 hover:underline"
                             href="{{ route('theses.download', [$firstChapter, 'abstract']) }}">
-                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 12 12 16.5 16.5 12" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V3" />
-                            </svg>
+                            <x-icon name="download" class="h-5 w-5" />
                             Abstract PDF
                         </a>
                     @endif
                     @if ($thesisTitle->endorsement_pdf_path && $firstChapter)
                         <a class="inline-flex items-center gap-2 text-indigo-600 hover:underline"
                             href="{{ route('theses.download', [$firstChapter, 'endorsement']) }}">
-                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 12 12 16.5 16.5 12" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V3" />
-                            </svg>
+                            <x-icon name="download" class="h-5 w-5" />
                             Endorsement Letter
                         </a>
                     @endif
@@ -63,13 +51,7 @@
 
             <div class="bg-white shadow sm:rounded p-6">
                 <h3 class="text-lg font-semibold text-gray-900 inline-flex items-center gap-2">
-                    <svg class="h-6 w-6 text-indigo-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 12 12 7.5 16.5 12" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5V21" />
-                    </svg>
+                    <x-icon name="upload" class="h-6 w-6 text-indigo-500" />
                     Chapter Submissions
                 </h3>
                 <p class="text-sm text-gray-600 mt-1">Upload the required chapters for this stage. Replacing a
@@ -114,15 +96,7 @@
                                     <div class="mt-3 md:mt-0">
                                         <a class="inline-flex items-center gap-2 text-indigo-600 hover:underline text-sm"
                                             href="{{ route('theses.download', [$chapter, 'thesis']) }}">
-                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                                fill="none" stroke="currentColor" stroke-width="1.5"
-                                                aria-hidden="true">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5" />
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M7.5 12 12 16.5 16.5 12" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V3" />
-                                            </svg>
+                                            <x-icon name="download" class="h-5 w-5" />
                                             Manuscript
                                         </a>
                                     </div>
@@ -148,16 +122,7 @@
                                         </div>
                                         <x-primary-button type="submit">
                                             <span class="inline-flex items-center gap-2">
-                                                <svg class="h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                    stroke-width="1.5" aria-hidden="true">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        d="M7.5 12 12 7.5 16.5 12" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        d="M12 7.5V21" />
-                                                </svg>
+                                                <x-icon name="upload" class="h-4 w-4 text-white" />
                                                 Upload {{ $chapter ? 'Again' : 'Chapter' }}
                                             </span>
                                         </x-primary-button>
@@ -179,11 +144,7 @@
 
             <div class="bg-white shadow sm:rounded p-6">
                 <h3 class="text-lg font-semibold text-gray-900 inline-flex items-center gap-2">
-                    <svg class="h-6 w-6 text-indigo-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="m9 12.75 1.5 1.5 3-3M9 7.5h6M12 6V4.5m6 3.75v8.25A2.25 2.25 0 0 1 15.75 18H8.25A2.25 2.25 0 0 1 6 15.75V8.25A2.25 2.25 0 0 1 8.25 6H9" />
-                    </svg>
+                    <x-icon name="certificate" class="h-6 w-6 text-indigo-500" />
                     Certificates
                 </h3>
                 <p class="text-sm text-gray-600 mt-1">

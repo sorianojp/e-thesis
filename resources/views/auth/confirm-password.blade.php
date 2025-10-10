@@ -19,7 +19,8 @@
         </div>
 
         <div class="flex justify-end mt-4">
-            <x-primary-button>
+            <x-primary-button class="gap-2">
+                <x-icon name="check" class="h-4 w-4" />
                 {{ __('Confirm') }}
             </x-primary-button>
         </div>

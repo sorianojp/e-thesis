@@ -40,7 +40,8 @@
                 </a>
             @endif
 
-            <x-primary-button class="ms-3">
+            <x-primary-button class="ms-3 gap-2">
+                <x-icon name="arrow-right-long" class="h-4 w-4" />
                 {{ __('Log in') }}
             </x-primary-button>
         </div>

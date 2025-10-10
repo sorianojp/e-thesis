@@ -33,7 +33,10 @@
 
                     <div class="flex justify-between items-center">
                         <a href="{{ route('admin.postgrad.index') }}" class="text-sm text-gray-600 hover:underline">Back to list</a>
-                        <x-primary-button type="submit">Upload</x-primary-button>
+                        <x-primary-button type="submit" class="gap-2">
+                            <x-icon name="upload" class="h-4 w-4" />
+                            Upload
+                        </x-primary-button>
                     </div>
                 </form>
             </div>

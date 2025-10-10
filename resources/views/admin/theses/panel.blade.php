@@ -51,7 +51,10 @@
 
                     <div class="flex justify-end items-center mt-6 space-x-2">
                         <a href="{{ route($routePrefix . '.theses.show', $thesis) }}" class="text-sm text-gray-600 hover:underline">Back to thesis</a>
-                        <x-primary-button type="submit">Save Panel</x-primary-button>
+                        <x-primary-button type="submit" class="gap-2">
+                            <x-icon name="check" class="h-4 w-4" />
+                            Save Panel
+                        </x-primary-button>
                     </div>
                 </form>
             </div>

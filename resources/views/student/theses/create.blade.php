@@ -64,7 +64,10 @@
                         </div>
                     </div>
                     <div class="flex justify-end items-center mt-4">
-                        <x-primary-button type="submit">Save Title</x-primary-button>
+                        <x-primary-button type="submit" class="gap-2">
+                            <x-icon name="check" class="h-4 w-4" />
+                            Save Title
+                        </x-primary-button>
                     </div>
                 </form>
             </div>
