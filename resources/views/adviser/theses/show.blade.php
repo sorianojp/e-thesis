@@ -17,6 +17,7 @@
             @php($firstChapter = $chapters->first())
             @php($titleDefenseReady = $thesisTitle->titleDefenseApproved())
             @php($firstApproved = $chapters->firstWhere('status', 'approved') ?? $chapters->firstWhere('status', 'passed'))
+            @php($hasPanel = (bool) ($thesisTitle->panel_chairman || $thesisTitle->panelist_one || $thesisTitle->panelist_two))
 
             <div class="bg-white shadow sm:rounded p-6">
                 <h2 class="text-xl font-semibold text-gray-900">{{ $thesisTitle->title }}</h2>
@@ -45,7 +46,7 @@
                 </div>
             </div>
 
-            <div class="bg-white shadow sm:rounded p-6">
+            <div class="{{ $hasPanel ? 'bg-green-50' : 'bg-red-50' }} shadow sm:rounded p-6">
                 <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900 inline-flex items-center gap-2">
@@ -101,13 +102,19 @@
                 <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     @foreach ($requiredChapters as $chapterLabel)
                         @php($chapter = $chapters->get($chapterLabel))
-                        <div class="border border-gray-200 rounded-lg p-4">
+                        @php($status = $chapter->status ?? 'not submitted')
+                        @php($statusClasses = match ($status) {
+                            'pending' => 'bg-yellow-50 border-yellow-200',
+                            'approved', 'passed' => 'bg-green-50 border-green-200',
+                            'rejected' => 'bg-red-50 border-red-200',
+                            default => 'bg-gray-50 border-gray-200',
+                        })
+                        <div class="rounded-lg p-4 border {{ $statusClasses }}">
                             <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                                 <div>
                                     <h4 class="font-semibold text-gray-900">{{ $chapterLabel }}</h4>
                                     <p class="text-xs text-gray-500 mt-1">
                                         Status:
-                                        @php($status = $chapter->status ?? 'not submitted')
                                         <span
                                             class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium capitalize {{ $status === 'pending'
                                                 ? 'bg-yellow-100 text-yellow-800'

@@ -6,7 +6,8 @@
     <div class="py-6">
         <div class="max-w-full mx-auto sm:px-6 lg:px-8">
             <div class="bg-white shadow sm:rounded p-6">
-                <form method="POST" action="{{ route('theses.store') }}" enctype="multipart/form-data">
+                <form method="POST" action="{{ route('theses.store') }}" enctype="multipart/form-data"
+                    class="thesis-title-form">
                     @csrf
                     <p class="text-sm text-gray-500 mb-4">Provide your thesis details, abstract, and endorsement letter.
                         You can upload thesis manuscripts after creating the title.</p>
@@ -73,4 +74,42 @@
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.querySelector('.thesis-title-form');
+
+            if (!form) {
+                return;
+            }
+
+            form.addEventListener('submit', (event) => {
+                const fileInputs = form.querySelectorAll('input[type="file"]');
+                const allFilesSelected = Array.from(fileInputs).every((input) => input.files && input.files.length);
+
+                if (!allFilesSelected) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                if (typeof Swal === 'undefined') {
+                    form.submit();
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Saving thesis title...',
+                    text: 'Please wait while we upload your files.',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                        form.submit();
+                    },
+                });
+            });
+        });
+    </script>
 </x-app-layout>

@@ -49,6 +49,40 @@
                 </div>
             </div>
 
+            @php($hasPanel = (bool) ($thesisTitle->panel_chairman || $thesisTitle->panelist_one || $thesisTitle->panelist_two))
+            <div class="{{ $hasPanel ? 'bg-green-50' : 'bg-red-50' }} shadow sm:rounded p-6">
+                <h3 class="text-lg font-semibold text-gray-900 inline-flex items-center gap-2">
+                    <x-icon name="users" class="h-6 w-6 text-indigo-500" />
+                    Panel Details
+                </h3>
+                <p class="text-sm text-gray-600 mt-1">
+                    @if ($hasPanel)
+                        Your adviser has assigned the panel for this title.
+                    @else
+                        Panel assignments will appear here once your adviser sets them.
+                    @endif
+                </p>
+
+                <dl class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-700">
+                    <div>
+                        <dt class="font-semibold">Chairman</dt>
+                        <dd>{{ $thesisTitle->panel_chairman ?? '—' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="font-semibold">Panelist 1</dt>
+                        <dd>{{ $thesisTitle->panelist_one ?? '—' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="font-semibold">Panelist 2</dt>
+                        <dd>{{ $thesisTitle->panelist_two ?? '—' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="font-semibold">Defense Date</dt>
+                        <dd>{{ optional($thesisTitle->defense_date)->format('F d, Y') ?? '—' }}</dd>
+                    </div>
+                </dl>
+            </div>
+
             <div class="bg-white shadow sm:rounded p-6">
                 <h3 class="text-lg font-semibold text-gray-900 inline-flex items-center gap-2">
                     <x-icon name="upload" class="h-6 w-6 text-indigo-500" />
@@ -62,7 +96,13 @@
                         @php($chapter = $chapters->get($chapterLabel))
                         @php($status = $chapter->status ?? 'not submitted')
                         @php($showUploadForm = in_array($status, ['rejected', 'not submitted'], true))
-                        <div class="border border-gray-200 rounded-lg p-4">
+                        @php($statusClasses = match ($status) {
+                            'pending' => 'bg-yellow-50 border-yellow-200',
+                            'approved', 'passed' => 'bg-green-50 border-green-200',
+                            'rejected' => 'bg-red-50 border-red-200',
+                            default => 'bg-gray-50 border-gray-200',
+                        })
+                        <div class="rounded-lg p-4 border {{ $statusClasses }}">
                             <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                                 <div>
                                     <h4 class="font-semibold text-gray-900">{{ $chapterLabel }}</h4>
