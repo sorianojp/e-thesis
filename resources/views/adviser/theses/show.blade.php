@@ -6,7 +6,7 @@
     </x-slot>
 
     <div class="py-6">
-        <div class="max-w-full mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             @if (session('status'))
                 <div class="rounded bg-green-50 text-green-900 px-4 py-2">{{ session('status') }}</div>
             @endif
@@ -170,8 +170,8 @@
                                             class="adviser-review-form" data-review-action="approve">
                                             @csrf
                                             <x-primary-button type="submit">
-                                                <span class="inline-flex items-center gap-2">
-                                                    <x-icon name="check" class="h-4 w-4 text-white" />
+                                                <span class="inline-flex items-center gap-2 ">
+                                                    <x-icon name="check" class="h-4 w-4 text-white " />
                                                     Approve
                                                 </span>
                                             </x-primary-button>
