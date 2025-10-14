@@ -34,10 +34,11 @@
                     ];
 
                     $isLeader = (int) $title->user_id === auth()->id();
-                    $otherMembers = $title->members
-                        ->filter(fn($member) => (int) $member->id !== auth()->id())
-                        ->pluck('name')
-                        ->implode(', ');
+                    $teamMembers = $title->members
+                        ->map(fn($member) => (int) $member->id === auth()->id()
+                            ? "{$member->name} (You)"
+                            : $member->name);
+                    $leaderName = optional($title->student)->name;
 
                     $titleDefenseReady = $title->titleDefenseApproved();
                     $finalDefenseReady = $title->chaptersAreApproved();
@@ -66,29 +67,20 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
                         <div>
-                            <p class="text-xs font-semibold text-gray-400 uppercase">Role</p>
-                            <p>{{ $isLeader ? 'Leader' : 'Member' }}</p>
-                        </div>
-
-                        <div>
                             <p class="text-xs font-semibold text-gray-400 uppercase">Team Members</p>
                             <div class="text-gray-900 space-y-1">
-                                @if ($isLeader)
-                                    @forelse ($title->members as $member)
-                                        <p>{{ $member->name }}</p>
-                                    @empty
-                                        <p>N/A</p>
-                                    @endforelse
-                                @else
-                                    @forelse (explode(', ', $otherMembers) as $member)
-                                        <p>{{ $member }}</p>
-                                    @empty
-                                        <p>N/A</p>
-                                    @endforelse
-                                @endif
+                                @forelse ($teamMembers as $memberName)
+                                    <p>{{ $memberName }}</p>
+                                @empty
+                                    <p>N/A</p>
+                                @endforelse
                             </div>
                         </div>
 
+                        <div>
+                            <p class="text-xs font-semibold text-gray-400 uppercase">Leader</p>
+                            <p class="text-gray-900">{{ $leaderName ?? 'Unassigned' }}{{ $isLeader ? ' (You)' : '' }}</p>
+                        </div>
                     </div>
 
 
